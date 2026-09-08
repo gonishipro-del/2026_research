@@ -1,15 +1,9 @@
-"""東証プライム上場企業の決算短信を収集し、特定ワードを集計するエントリポイント。
+"""データ収集の一連の工程を順に実行する CLI 本体。
 
   1. data_j.xlsx から東証プライム上場企業を抽出
   2. 決算プロ（株プロ）から各社の直近の本決算短信PDFをダウンロード
   3. PDFからテキストを抽出（結果はキャッシュ）
   4. keywords.txt に定義したワードの出現回数を集計し Excel / CSV に出力
-
-使い方:
-  python main.py                      # 全工程を実行
-  python main.py --limit 20           # 先頭20社だけで動作確認
-  python main.py --skip-download      # ダウンロード済みデータで集計だけやり直す
-  python main.py --keywords other.txt # 別のワード定義ファイルを使う
 """
 from __future__ import annotations
 
@@ -17,18 +11,20 @@ import argparse
 import sys
 from pathlib import Path
 
-import config
-from src.analyzer import analyze, summarize
-from src.companies import load_companies
-from src.downloader import TanshinDownloader, load_metadata
-from src.kabupro_client import KabuproClient
-from src.keywords import load_keywords
-from src.pdf_text import extract_all
-from src.report import write_csv, write_xlsx
+from . import config
+from .analyzer import analyze, summarize
+from .companies import load_companies
+from .downloader import TanshinDownloader, load_metadata
+from .kabupro_client import KabuproClient
+from .keywords import load_keywords
+from .pdf_text import extract_all
+from .report import write_csv, write_xlsx
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="collect.py", description="決算短信の収集とワード集計"
+    )
     parser.add_argument("--limit", type=int, default=0, help="処理する企業数の上限（0で全社）")
     parser.add_argument("--skip-download", action="store_true", help="PDFの取得を行わない")
     parser.add_argument(
@@ -40,13 +36,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--keywords", type=Path, default=config.KEYWORD_FILE, help="ワード定義ファイル"
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    args = parse_args()
+    args = parse_args(argv)
 
     print("[1/4] 上場企業リストの読み込み")
     companies = load_companies(config.LISTED_COMPANY_XLSX, config.TARGET_MARKET)
@@ -115,7 +111,3 @@ def main() -> int:
     print(f"\n  Excel: {config.REPORT_XLSX}")
     print(f"  CSV  : {config.REPORT_CSV}")
     return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

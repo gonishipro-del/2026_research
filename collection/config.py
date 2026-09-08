@@ -1,28 +1,20 @@
-"""プロジェクト全体の設定値。
+"""データ収集（決算短信の取得・テキスト抽出・ワード集計）の設定値。
 
-パスや通信のふるまいなど、実行環境に依存する値はここに集約する。
+パスは共通定義 `paths.py` を参照する。ここには収集の挙動に関する値だけを置く。
 """
-from pathlib import Path
-
-# --- パス設定 ---------------------------------------------------------------
-BASE_DIR = Path(__file__).resolve().parent
-
-# 東証が公開する上場銘柄一覧（data_j.xlsx）
-LISTED_COMPANY_XLSX = BASE_DIR / "data_j.xlsx"
+from paths import (  # noqa: F401  各モジュールからは config 経由で参照する
+    BASE_DIR,
+    LISTED_COMPANY_XLSX,
+    METADATA_JSONL,
+    OUTPUT_DIR,
+    PDF_DIR,
+    REPORT_CSV,
+    REPORT_XLSX,
+    TEXT_DIR,
+)
 
 # 検索対象ワードの定義ファイル
 KEYWORD_FILE = BASE_DIR / "keywords.txt"
-
-# データセット（決算短信PDFと抽出テキストの保存先）
-DATASET_DIR = BASE_DIR / "20260904dataset"
-PDF_DIR = DATASET_DIR / "pdf"
-TEXT_DIR = DATASET_DIR / "text"
-METADATA_JSONL = DATASET_DIR / "metadata.jsonl"
-
-# 集計結果の出力先
-OUTPUT_DIR = BASE_DIR / "output"
-REPORT_XLSX = OUTPUT_DIR / "keyword_report.xlsx"
-REPORT_CSV = OUTPUT_DIR / "keyword_report.csv"
 
 # --- 対象企業 ---------------------------------------------------------------
 # data_j.xlsx の「市場・商品区分」列がこの値の行を対象にする
