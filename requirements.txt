@@ -3,3 +3,7 @@ openpyxl==3.1.5
 requests==2.34.2
 beautifulsoup4==4.15.0
 pdfminer.six==20260107
+pandas==3.0.5
+yfinance==1.7.0
+pypdfium2==5.13.0
+pillow==12.3.0
