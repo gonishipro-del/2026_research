@@ -5,6 +5,5 @@ __pycache__/
 
 # 収集したPDF・抽出テキストは容量が大きいためバージョン管理しない
 20260904dataset/
-output/
 full_run.log
 cache/
