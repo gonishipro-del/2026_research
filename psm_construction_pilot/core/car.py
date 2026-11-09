@@ -3,7 +3,7 @@
 期待収益率モデルは Fama-French 5 ファクター（入力フォルダの Japan 5 Factors 日次）。
   R_it − RF_t = α_i + β_i1·MKT_t + … + β_i5·CMA_t + ε_it     推定期間 [-250, -21]（営業日、発表日を0）
   AR_it = (R_it − RF_t) − (α̂_i + Σ β̂_ik·F_kt)                   α を含めるかは include_alpha
-  CAR = Σ AR を窓の期間で合計。窓は event_windows（既定は1日・3日・30日・60日・90日）と placebo_window。
+  CAR = Σ AR を窓の期間で合計。窓は event_windows（既定は1日・3日・5日・10日・30日）と placebo_window。
 
 対象は、凍結したマッチの処置群と対照群のみ。感度分析（段階8）で使う他の設定のマッチに含まれる企業も
 同じ計算に入れる（それ以外の全社分は計算しない）。
@@ -244,6 +244,28 @@ def run(run_id: str, progress: Progress) -> stage_runner.StageResult:
     if computed < len(codes):
         return stage_runner.StageResult(stages.REVIEW, message + "。計算できない企業があります（warnings.csv）")
     return stage_runner.StageResult(stages.DONE, message)
+
+
+def uncomputed(run_id: str, window: str) -> pd.DataFrame:
+    """窓 window の CAR を計算できなかった企業と理由（code, name, reason）。"""
+    out = runs.stage_dir(run_id, stages.CAR)
+    car = pd.read_csv(out / "car.csv", dtype={"code": str}, encoding="utf-8-sig", keep_default_na=False)
+    column = f"car_{window}"
+    values = pd.to_numeric(car[column], errors="coerce") if column in car else pd.Series(float("nan"), car.index)
+    missing = car[values.isna()]
+    reasons = missing.get("warnings", pd.Series("", missing.index)).replace("", "CAR計算失敗（errors.csv）")
+    return pd.DataFrame({"code": missing["code"], "name": missing["name"], "reason": reasons}).reset_index(drop=True)
+
+
+def confirm_uncomputed(run_id: str, note: str) -> None:
+    """主分析窓で CAR を計算できない企業があることを確認して先へ進める（そのペアは段階7で外れる）。"""
+    if not note.strip():
+        raise ValueError("確認のメモは必須です")
+    entry = runs.stage_state(run_id, stages.CAR)
+    if entry["status"] != stages.REVIEW:
+        raise ValueError("段階6は「要確認」ではありません")
+    runs.set_status(run_id, stages.CAR, stages.DONE, entry["message"] + "（計算できない企業を確認済み）", confirmed=True)
+    runs.log_event(run_id, "CARを計算できない企業の確認", stage=stages.CAR, detail=note.strip())
 
 
 if __name__ == "__main__":

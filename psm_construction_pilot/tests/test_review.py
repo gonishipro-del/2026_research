@@ -73,3 +73,31 @@ def test_manual_value_rebuilds_dataset_without_rerunning_stage(prepared):
     assert saved.set_index("code").loc["1003", "in_analysis"] == 1  # その場で作り直されている
     assert runs.stage_state(prepared, stages.COVARIATES)["status"] == stages.DONE
     assert runs.stage_state(prepared, stages.MATCHING)["status"] == stages.STALE
+
+
+def test_exclude_many_and_include_many(prepared):
+    runs.set_status(prepared, stages.COVARIATES, stages.REVIEW)
+    runs.set_status(prepared, stages.MATCHING, stages.DONE)
+    review.exclude("1001", "先に1社だけ除外")
+    review.exclude_many(["1001", "1002", "1002"], "要確認の会社をまとめて除外")
+    assert review.excluded_codes() == ["1001", "1002"]
+    logged = overrides.active("exclude")
+    assert len(logged[logged["source"] == "段階3（一括）"]) == 1  # 除外中の1001と重複は飛ばす
+    rows = review.build_dataset(prepared)[0].set_index("code")
+    assert rows.loc["1001", "in_analysis"] == 0 and rows.loc["1002", "in_analysis"] == 0
+    assert runs.stage_state(prepared, stages.MATCHING)["status"] == stages.STALE
+
+    review.include_many(["1001", "1002"], "やはり含める")
+    assert review.excluded_codes() == []
+    rows = review.build_dataset(prepared)[0].set_index("code")
+    assert rows.loc["1001", "in_analysis"] == 1 and rows.loc["1002", "in_analysis"] == 1
+
+
+def test_exclude_many_requires_reason_and_targets(prepared):
+    with pytest.raises(ValueError):
+        review.exclude_many(["1001"], " ")
+    review.exclude_many(["1001"], "理由")
+    with pytest.raises(ValueError):
+        review.exclude_many(["1001"], "理由")  # すでに除外中だけ
+    with pytest.raises(ValueError):
+        review.include_many(["1002"], "理由")  # 除外中ではない

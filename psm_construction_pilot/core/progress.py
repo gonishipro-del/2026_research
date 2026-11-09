@@ -21,6 +21,14 @@ class Progress:
         self.echo = echo
         self._last_write = 0.0
 
+    @classmethod
+    def in_directory(cls, directory: Path, *, echo: bool = False) -> "Progress":
+        """段階以外（データセットの収集など）の進捗を、指定したフォルダに記録する。"""
+        progress = cls.__new__(cls)
+        directory.mkdir(parents=True, exist_ok=True)
+        progress.directory, progress.echo, progress._last_write = directory, echo, 0.0
+        return progress
+
     @property
     def log_path(self) -> Path:
         return self.directory / "log.txt"
@@ -63,6 +71,24 @@ class Progress:
 
 def read_progress(run_id: str, number: int) -> dict | None:
     return state.read_json(runs.stage_dir(run_id, number) / "progress.json", None)
+
+
+def read_progress_in(directory: Path) -> dict | None:
+    return state.read_json(directory / "progress.json", None)
+
+
+def read_log_in(directory: Path, tail: int = 200) -> str:
+    path = directory / "log.txt"
+    if not path.exists():
+        return ""
+    return "\n".join(path.read_text(encoding="utf-8").splitlines()[-tail:])
+
+
+def read_errors_in(directory: Path) -> pd.DataFrame:
+    path = directory / "errors.csv"
+    if not path.exists():
+        return pd.DataFrame(columns=ERROR_COLUMNS)
+    return pd.read_csv(path, dtype=str, encoding="utf-8-sig").fillna("")
 
 
 def read_log(run_id: str, number: int, tail: int = 200) -> str:

@@ -9,7 +9,7 @@ import streamlit as st
 from core import pairing, propensity, runs, stages
 from core.car import window_label
 from ui import pairing as ui_pairing
-from ui import stage_panel
+from ui import common, stage_panel
 
 NUMBER = stages.MATCHING
 run_id = runs.current_run()
@@ -60,33 +60,74 @@ chosen = st.selectbox("表示するマッチングの設定", grid["config"].tol
 data = pairing.load(run_id, chosen)
 nodes, pairs, caliper_abs = data["nodes"], data["pairs"], data["caliper_abs"]
 ui_pairing.summary_metrics(nodes, pairs)
+industry_of = common.read_csv(runs.stage_dir(run_id, stages.INGEST) / "targets.csv").set_index("code")["industry33"]
+pair_counts = pairs["treated"].map(industry_of).value_counts()
+industries = sorted(industry_of.reindex(nodes.index).dropna().unique(), key=lambda i: (-pair_counts.get(i, 0), i))
+industry = st.selectbox("業種で絞る（図・ペア・名簿）", ["すべて"] + industries, key="pair_industry",
+                        format_func=lambda i: f"すべて（ペア{len(pairs)}組）" if i == "すべて"
+                        else f"{i}（ペア{pair_counts.get(i, 0)}組）")
+all_nodes, all_pairs = nodes, pairs
+if industry != "すべて":
+    nodes = nodes[nodes.index.map(industry_of) == industry]
+    pairs = pairs[pairs["treated"].isin(nodes.index)]
+    if pairs.empty:
+        st.info("この業種にはペアがありません")
+        st.stop()
 
 tab_chart, tab_pairs, tab_roster = st.tabs(["図で見る", "ペアを比べる", "全企業の名簿"])
 with tab_chart:
-    st.markdown(
-        "横軸は**傾向スコア**（その会社が AI に言及しやすい度合い。右ほど言及しやすい）。"
-        "上段が言及あり（処置）、下段が言及なし（対照）で、**線でつながった2社が1組のペア**。"
-        "線がほぼ垂直なほど、傾向スコアが近い2社を組めている（個々の項目が似ているとは限らない）。")
-    columns = st.columns([3, 1])
-    picked = columns[0].selectbox("ペアを強調表示", [ui_pairing.ALL_PAIRS] + pairs["label"].tolist(), key="chart_pair")
-    zoom = columns[1].checkbox("中心部を拡大", value=True, help="離れた外れ値を枠の外に出して、ペアが密な範囲を拡大する")
-    st.altair_chart(ui_pairing.dumbbell(nodes, pairs, caliper_abs, None if picked == ui_pairing.ALL_PAIRS else picked,
-                                         zoom=zoom), width="stretch")
-    if zoom:
-        hidden = ui_pairing.hidden_by_zoom(nodes, pairs)
-        if hidden:
-            st.caption(f"拡大表示のため枠の外にある{len(hidden)}社: {'、'.join(hidden)}（「中心部を拡大」を外すと表示される）")
-    if picked != ui_pairing.ALL_PAIRS:
-        st.caption(f"薄い青の帯は許容幅（キャリパー）。処置の会社の傾向スコアから ±{caliper_abs:.3f} の範囲にいる対照だけが、相手の候補になる。")
-    st.caption("● 言及あり・ペアになった　✖ 言及あり・脱落（許容幅の中に相手がいない、または近くの対照が他のペアですでに使われた）　"
-               "■ 言及なし・ペアになった　□ 言及なし・使われなかった。点にカーソルを合わせると企業名と相手が出る。")
+    many = len(pairs) > ui_pairing.LINE_LIMIT
+    views = ["分布で見る", "線でつないで見る"]
+    view = st.radio("図の種類", views, index=0 if many else 1, horizontal=True, key=f"pair_view_{industry}",
+                    help=f"ペアが{ui_pairing.LINE_LIMIT}組を超えると、線でつなぐ図は線が重なって読めないため、分布の図を既定にする")
+    if view == "分布で見る":
+        st.markdown(
+            "横軸は**傾向スコア**（その会社が AI に言及しやすい度合い。右ほど言及しやすい）。"
+            "上向きの棒が言及あり（処置）、下向きの棒が言及なし（対照）の社数。"
+            "**濃い色（ペアになった会社）の上下の形が似ているほど**、傾向スコアの揃った2群を作れている。")
+        st.altair_chart(ui_pairing.mirror_histogram(nodes), width="stretch")
+        if many:
+            st.caption(f"ペアが{len(pairs)}組あるため、分布で表示している。1組ずつの線を見るには、"
+                       "業種で絞るか「線でつないで見る」を選ぶ。")
+        if industry == "すべて":
+            st.markdown("**業種ごとのペア数**（同じ業種の会社どうしでだけペアを組む）")
+            st.altair_chart(ui_pairing.industry_bars(all_pairs, all_nodes, industry_of), width="stretch")
+    else:
+        st.markdown(
+            "横軸は**傾向スコア**（その会社が AI に言及しやすい度合い。右ほど言及しやすい）。"
+            "上段が言及あり（処置）、下段が言及なし（対照）で、**線でつながった2社が1組のペア**。"
+            "線がほぼ垂直なほど、傾向スコアが近い2社を組めている（個々の項目が似ているとは限らない）。")
+        if many:
+            st.caption(f"ペアが{len(pairs)}組あり、線が重なる。業種で絞ると見やすい。")
+        columns = st.columns([3, 1])
+        picked = columns[0].selectbox("ペアを強調表示", [ui_pairing.ALL_PAIRS] + pairs["label"].tolist(), key="chart_pair")
+        zoom = columns[1].checkbox("中心部を拡大", value=True, help="離れた外れ値を枠の外に出して、ペアが密な範囲を拡大する")
+        st.altair_chart(ui_pairing.dumbbell(nodes, pairs, caliper_abs, None if picked == ui_pairing.ALL_PAIRS else picked,
+                                             zoom=zoom), width="stretch")
+        if zoom:
+            hidden = ui_pairing.hidden_by_zoom(nodes, pairs)
+            if hidden:
+                shown_names = "、".join(hidden[:20]) + (f" ほか{len(hidden) - 20}社" if len(hidden) > 20 else "")
+                st.caption(f"拡大表示のため枠の外にある{len(hidden)}社: {shown_names}（「中心部を拡大」を外すと表示される）")
+        if picked != ui_pairing.ALL_PAIRS:
+            st.caption(f"薄い青の帯は許容幅（キャリパー）。処置の会社の傾向スコアから ±{caliper_abs:.3f} の範囲にいる対照だけが、相手の候補になる。")
+        st.caption("● 言及あり・ペアになった　✖ 言及あり・脱落（許容幅の中に相手がいない、または近くの対照が他のペアですでに使われた）　"
+                   "■ 言及なし・ペアになった　□ 言及なし・使われなかった。点にカーソルを合わせると企業名と相手が出る。")
 with tab_pairs:
-    label = st.selectbox("ペア", pairs["label"].tolist(), key="card_pair")
+    columns = st.columns([2, 3])
+    sort_label = columns[0].selectbox("並べ方", list(ui_pairing.SORTS), key="pair_sort")
+    column, ascending = ui_pairing.SORTS[sort_label]
+    ordered = pairs.sort_values(column, ascending=ascending)
+    labels = {row["label"]: f"{row['label']}　（距離 {row['distance']:.3f}）" for _, row in ordered.iterrows()}
+    label = columns[1].selectbox(f"ペア（{len(ordered)}組。文字を打つと絞り込める）", list(labels),
+                                 format_func=labels.get, key="card_pair")
     pair = pairs[pairs["label"] == label].iloc[0]
     ui_pairing.pair_card(run_id, settings, pair, nodes, window_label(tuple(settings["event_window_main"])))
-    with st.expander("全ペアの一覧"):
-        st.dataframe(pairs[["treated", "treated_name", "control", "control_name", "ps_treated", "ps_control", "distance"]]
-                     .rename(columns={"treated": "処置コード", "treated_name": "言及あり（処置）", "control": "対照コード",
+    with st.expander(f"ペアの一覧（{len(ordered)}組、上の並べ方の順）"):
+        st.dataframe(ordered.assign(industry=ordered["treated"].map(industry_of))[
+                         ["industry", "treated", "treated_name", "control", "control_name", "ps_treated", "ps_control",
+                          "distance"]]
+                     .rename(columns={"industry": "業種", "treated": "処置コード", "treated_name": "言及あり（処置）", "control": "対照コード",
                                       "control_name": "言及なし（対照）", "ps_treated": "処置の傾向スコア",
                                       "ps_control": "対照の傾向スコア", "distance": "距離（ロジット）"}),
                      hide_index=True, width="stretch")

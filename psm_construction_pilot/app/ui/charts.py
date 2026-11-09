@@ -56,7 +56,9 @@ def heatmap(cells: pd.DataFrame, order: list[str]) -> alt.LayerChart:
                alt.Tooltip("value:N", title="値"), alt.Tooltip("status:N", title="状態"),
                alt.Tooltip("reason_code:N", title="理由コード"), alt.Tooltip("detail:N", title="詳細")]
     base = alt.Chart(table).encode(
-        x=alt.X("variable:N", sort=VARIABLE_ORDER, title=None, axis=alt.Axis(orient="top", labelAngle=0)),
+        x=alt.X("variable:N", sort=[v for v in VARIABLE_ORDER if v in set(table["variable"])]
+                + sorted(set(table["variable"]) - set(VARIABLE_ORDER)), title=None,
+                axis=alt.Axis(orient="top", labelAngle=0)),
         y=alt.Y("company:N", sort=order, title=None, axis=alt.Axis(labelOverlap=False, labelFontSize=12)),
     )
     rect = base.mark_rect(stroke="#ffffff", strokeWidth=2, cornerRadius=2).encode(

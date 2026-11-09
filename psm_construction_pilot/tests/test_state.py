@@ -57,3 +57,26 @@ def test_overrides_latest_wins_and_revoke_restores(sandbox):
     assert overrides.active("value").iloc[0]["override_id"] == first
     overrides.revoke(run_id, first, "不要")
     assert overrides.active("value").empty
+
+
+def test_retired_covariate_is_renamed_on_save(sandbox):
+    run_id = runs.current_run()
+    values = {**runs.run_config(run_id), "covariates": ["log_total_assets", "profit_change"]}
+    saved_run, changed, _ = settings.save(values)
+    assert runs.run_config(saved_run)["covariates"] == ["log_total_assets", "earnings_surprise"]
+
+
+def test_atomic_write_retries_when_target_is_briefly_locked(tmp_path, monkeypatch):
+    import os
+    from core import state
+    real_replace, calls = os.replace, []
+
+    def flaky(source, target):
+        calls.append(1)
+        if len(calls) < 3:
+            raise PermissionError("読んでいる最中")
+        real_replace(source, target)
+    monkeypatch.setattr(state.os, "replace", flaky)
+    monkeypatch.setattr(state, "_REPLACE_WAIT_SEC", 0)
+    state.write_json_atomic(tmp_path / "progress.json", {"done": 1})
+    assert state.read_json(tmp_path / "progress.json", None) == {"done": 1} and len(calls) == 3

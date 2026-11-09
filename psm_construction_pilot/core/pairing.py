@@ -78,7 +78,7 @@ def comparison(run_id: str, settings: dict, treated: str, control: str, nodes: p
         "roa_ordinary": ("ROA（経常利益÷総資産・%）", lambda v: v * 100, "{:.2f}"),
         "leverage": ("負債比率（負債÷総資産・%）", lambda v: v * 100, "{:.1f}"),
         "pbr": ("PBR（倍）", lambda v: v, "{:.2f}"),
-        "profit_change": ("利益の変化（Δ経常利益÷前期末総資産・%）", lambda v: v * 100, "{:.2f}"),
+        "earnings_surprise": ("利益サプライズ（(実績−予想)÷前期末総資産・%）", lambda v: v * 100, "{:.2f}"),
     }
     for column in settings["covariates"]:
         label, convert, fmt = labels.get(column, (column, lambda v: v, "{:.4g}"))

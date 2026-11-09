@@ -20,20 +20,34 @@ from pathlib import Path
 import pandas as pd
 
 import config
-from core import inputs, master, overrides, runs, stage_runner, stages
+from core import datasets, inputs, master, overrides, runs, stage_runner, stages
 from core.pdf_text import page_text
 from core.progress import Progress
 from psm_dataset.extract_pdf import detect_title_info
 from psm_dataset.parse_filename import FileInfo, parse_filename
 
 ANNUAL, INTERIM, UNKNOWN = "通期", "四半期・中間", "判定不能"
-SOURCE_EXISTING, SOURCE_MANUAL = "既存フォルダ", "手動アップロード"
+SOURCE_EXISTING, SOURCE_MANUAL = "データセット", "手動アップロード"
 
 
 def target_companies(frame: pd.DataFrame, settings: dict) -> pd.DataFrame:
-    rows = frame[(frame["市場・商品区分"] == settings["market"])
-                 & frame["33業種区分"].isin(settings["target_industries"])]
+    """市場で絞り、対象業種（空なら全業種）から除外業種を除く。"""
+    rows = frame[frame["市場・商品区分"] == settings["market"]]
+    if settings["target_industries"]:
+        rows = rows[rows["33業種区分"].isin(settings["target_industries"])]
+    rows = rows[~rows["33業種区分"].isin(settings.get("excluded_industries") or [])]
     return rows.sort_values("コード").reset_index(drop=True)
+
+
+def master_file(settings: dict) -> Path:
+    """データセットに写した上場銘柄一覧があればそれを、なければ入力フォルダの最新版を使う。"""
+    snapshot = datasets.path(settings["dataset"]) / "master.xlsx"
+    if snapshot.exists():
+        return snapshot
+    ok, reason = inputs.is_valid("master")
+    if not ok:
+        raise RuntimeError(reason)
+    return inputs.current_file("master")
 
 
 def is_preferred_share(code: str, name: str) -> bool:
@@ -79,14 +93,15 @@ def manual_companies() -> pd.DataFrame:
 
 def run(run_id: str, progress: Progress) -> stage_runner.StageResult:
     settings = runs.run_config(run_id)
-    ok, reason = inputs.is_valid("master")
-    if not ok:
-        raise RuntimeError(reason)
-    master_path = inputs.current_file("master")
+    dataset = datasets.get(settings["dataset"])
+    master_path = master_file(settings)
     frame = master.load(master_path)
     targets = target_companies(frame, settings)
-    progress.log(f"上場銘柄一覧: {master_path.name}（{len(frame)}行）→ {settings['market']} × "
-                 f"{settings['target_industries']}: {len(targets)}社")
+    industries = "・".join(settings["target_industries"]) or "全業種"
+    excluded = "・".join(settings.get("excluded_industries") or []) or "なし"
+    progress.log(f"データセット: {dataset['id']}（{dataset['label']}）")
+    progress.log(f"上場銘柄一覧: {master_path}（{len(frame)}行）→ {settings['market']} × {industries}"
+                 f"（除外: {excluded}）: {len(targets)}社")
 
     targets["手動追加"] = 0
     added = manual_companies()
@@ -99,7 +114,7 @@ def run(run_id: str, progress: Progress) -> stage_runner.StageResult:
         targets = pd.concat([targets, added[targets.columns]], ignore_index=True)
         progress.log(f"手動追加の企業: {len(added)}社")
 
-    pdf_dir = config.resolve_pdf_dir(settings)
+    pdf_dir = datasets.pdf_dir(settings["dataset"])
     pdfs = scan_pdfs({SOURCE_EXISTING: pdf_dir, SOURCE_MANUAL: config.MANUAL_PDF_DIR}, progress)
     by_code: dict[str, list[tuple[FileInfo, str]]] = {}
     for info, source in pdfs:
@@ -164,6 +179,7 @@ def run(run_id: str, progress: Progress) -> stage_runner.StageResult:
 
     summary = {
         "master_file": master_path.name,
+        "dataset": settings["dataset"],
         "pdf_dir": str(pdf_dir),
         "target_companies": int(len(companies)),
         "included": int(companies["included"].sum()) if len(companies) else 0,

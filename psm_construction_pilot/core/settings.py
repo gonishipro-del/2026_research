@@ -22,8 +22,17 @@ def _dump(value: object) -> str:
 
 def validate(values: dict) -> list[str]:
     errors = []
-    if not values["target_industries"]:
-        errors.append("対象業種を1つ以上選んでください")
+    from core import covariates, datasets  # 設定の読み込みより後で読む（循環を避ける）
+
+    try:
+        dataset = datasets.get(values["dataset"])
+        if dataset["status"] != datasets.COLLECTED:
+            errors.append(f"データセット {values['dataset']} はまだ収集が終わっていません（{dataset['status']}）")
+    except KeyError as error:
+        errors.append(str(error))
+    unknown = [name for name in values["covariates"] if name not in covariates.VARIABLES]
+    if unknown or not values["covariates"]:
+        errors.append(f"共変量は {covariates.VARIABLES} から1つ以上選んでください（不明: {unknown}）")
     if not values["ai_keywords"]:
         errors.append("AI_KEYWORDS を1つ以上入れてください")
     if values["treatment_threshold"] < 1:
@@ -45,9 +54,23 @@ def validate(values: dict) -> list[str]:
     return errors
 
 
+# 廃止した共変量 → 置き換え先（保存するときに置き換える。過去の run のスナップショットは変えない）
+RENAMED_COVARIATES = {"profit_change": "earnings_surprise"}
+
+
+def migrate(values: dict) -> dict:
+    """廃止した設定値を、現在の名前に置き換える。"""
+    renamed = []
+    for name in values["covariates"]:
+        new_name = RENAMED_COVARIATES.get(name, name)
+        if new_name not in renamed:
+            renamed.append(new_name)
+    return {**values, "covariates": renamed}
+
+
 def save(values: dict, note: str = "") -> tuple[str, list[str], list[int]]:
     """設定を保存する。(適用した run, 変更した項目, 要再実行にした段階) を返す。"""
-    values = config.with_defaults(values)
+    values = migrate(config.with_defaults(values))
     errors = validate(values)
     if errors:
         raise ValueError("; ".join(errors))

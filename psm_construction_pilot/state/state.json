@@ -1,5 +1,5 @@
 {
-  "current_run": "run_20261109_135558",
+  "current_run": "run_20261109_160024",
   "runs": {
     "run_20261105_161846": {
       "created_at": "2026-11-05T16:18:46",
@@ -309,11 +309,234 @@
           "from_run": "run_20261109_114211"
         }
       ]
+    },
+    "run_20261109_143249": {
+      "created_at": "2026-11-09T14:32:49",
+      "parent": "run_20261109_135558",
+      "reason": "結果閲覧後の変更: 設定の変更: target_industries, excluded_industries, covariates",
+      "stages": {
+        "0": {
+          "status": "完了",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "設定を保存"
+        },
+        "1": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:07:12",
+          "message": "対象1432社 / 採用1404社 / PDFなし21社 / 種類株式7社 / 通期なし0社"
+        },
+        "2": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:08:24",
+          "message": "処置群573社 / 対照群819社 / 判定不能12社"
+        },
+        "3": {
+          "status": "要確認",
+          "updated_at": "2026-11-09T15:34:47",
+          "message": "1404社 / 予想あり0社 / 欠損160セル / 要確認647セル / 抽出失敗18社 / 株価失敗0社／分析対象1334社（処置550・対照784）／除外70社／手動0セル／未確認の「要確認」612セル。値を確認・修正するか、このまま使うことを確認してください"
+        },
+        "4": {
+          "status": "要再実行",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "上流の変更: 設定の変更: target_industries, excluded_industries, covariates"
+        },
+        "5": {
+          "status": "要再実行",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "上流の変更: 設定の変更: target_industries, excluded_industries, covariates"
+        },
+        "6": {
+          "status": "要再実行",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "上流の変更: 設定の変更: target_industries, excluded_industries, covariates"
+        },
+        "7": {
+          "status": "要再実行",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "上流の変更: 設定の変更: target_industries, excluded_industries, covariates"
+        },
+        "8": {
+          "status": "要再実行",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "上流の変更: 設定の変更: target_industries, excluded_industries, covariates"
+        }
+      },
+      "frozen": null,
+      "results_viewed": {
+        "7": "2026-11-09T14:36:24",
+        "8": "2026-11-09T15:05:08"
+      },
+      "changed_after_view": [
+        {
+          "at": "2026-11-09T14:32:49",
+          "what": "設定の変更: target_industries, excluded_industries, covariates",
+          "from_run": "run_20261109_135558"
+        }
+      ]
+    },
+    "run_20261109_154444": {
+      "created_at": "2026-11-09T15:44:44",
+      "parent": "run_20261109_143249",
+      "reason": "結果閲覧後の変更: 分析からまとめて除外 185社",
+      "stages": {
+        "0": {
+          "status": "完了",
+          "updated_at": "2026-11-09T14:32:49",
+          "message": "設定を保存"
+        },
+        "1": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:07:12",
+          "message": "対象1432社 / 採用1404社 / PDFなし21社 / 種類株式7社 / 通期なし0社"
+        },
+        "2": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:08:24",
+          "message": "処置群573社 / 対照群819社 / 判定不能12社"
+        },
+        "3": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:44:45",
+          "message": "分析対象1160社（処置467・対照693）／除外244社／手動0セル"
+        },
+        "4": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:45:16",
+          "message": "主分析 norep_c0.2: ペア318 / 脱落149社 / SMD最大0.059"
+        },
+        "5": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:45:44",
+          "message": "SMD最大（マッチ後）0.059（log_total_assets）。脱落した処置群149社"
+        },
+        "6": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:52:56",
+          "message": "対象756社 / 主分析窓のCAR計算 753社 / 警告836件。計算できない企業があります（warnings.csv）（計算できない企業を確認済み）",
+          "confirmed": true
+        },
+        "7": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:54:07",
+          "message": "主分析m1_p1: ATT +0.0068 95%CI [-0.0078, +0.0218] n=315"
+        },
+        "8": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:55:22",
+          "message": "窓・マッチ・市場モデル等 12件の代替推定を並べた。市場モデル（日経平均（^N225））の ATT +0.0076。試運転の結果"
+        }
+      },
+      "frozen": {
+        "at": "2026-11-09T15:45:50",
+        "config": "norep_c0.2",
+        "replacement": false,
+        "caliper_sd": 0.2,
+        "covariates": [
+          "log_total_assets",
+          "roa_ordinary",
+          "leverage",
+          "pbr",
+          "earnings_surprise"
+        ],
+        "seed": 20261105,
+        "matched_pairs_sha256": "d43b9e7fbd555a7d0ca4197ea384af2f574e1c8da328f2d61e107cf30853117b",
+        "settings_sha256": "4fb28a174111513940fea58e6fda16b07b373c8845258e6392b78e8aad51628a"
+      },
+      "results_viewed": {
+        "7": "2026-11-09T15:47:20",
+        "8": "2026-11-09T15:48:06"
+      },
+      "changed_after_view": [
+        {
+          "at": "2026-11-09T15:44:44",
+          "what": "分析からまとめて除外 185社",
+          "from_run": "run_20261109_143249"
+        }
+      ]
+    },
+    "run_20261109_160024": {
+      "created_at": "2026-11-09T16:00:24",
+      "parent": "run_20261109_154444",
+      "reason": "結果閲覧後の変更: 設定の変更: event_windows",
+      "stages": {
+        "0": {
+          "status": "完了",
+          "updated_at": "2026-11-09T16:00:24",
+          "message": "設定を保存"
+        },
+        "1": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:07:12",
+          "message": "対象1432社 / 採用1404社 / PDFなし21社 / 種類株式7社 / 通期なし0社"
+        },
+        "2": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:08:24",
+          "message": "処置群573社 / 対照群819社 / 判定不能12社"
+        },
+        "3": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:44:45",
+          "message": "分析対象1160社（処置467・対照693）／除外244社／手動0セル"
+        },
+        "4": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:45:16",
+          "message": "主分析 norep_c0.2: ペア318 / 脱落149社 / SMD最大0.059"
+        },
+        "5": {
+          "status": "完了",
+          "updated_at": "2026-11-09T15:45:44",
+          "message": "SMD最大（マッチ後）0.059（log_total_assets）。脱落した処置群149社"
+        },
+        "6": {
+          "status": "完了",
+          "updated_at": "2026-11-09T16:02:58",
+          "message": "対象756社 / 主分析窓のCAR計算 753社 / 警告762件。計算できない企業があります（warnings.csv）（計算できない企業を確認済み）",
+          "confirmed": true
+        },
+        "7": {
+          "status": "完了",
+          "updated_at": "2026-11-09T16:03:00",
+          "message": "主分析m1_p1: ATT +0.0068 95%CI [-0.0078, +0.0218] n=315"
+        },
+        "8": {
+          "status": "完了",
+          "updated_at": "2026-11-09T16:04:10",
+          "message": "窓・マッチ・市場モデル等 12件の代替推定を並べた。市場モデル（日経平均（^N225））の ATT +0.0076。試運転の結果"
+        }
+      },
+      "frozen": {
+        "at": "2026-11-09T15:45:50",
+        "config": "norep_c0.2",
+        "replacement": false,
+        "caliper_sd": 0.2,
+        "covariates": [
+          "log_total_assets",
+          "roa_ordinary",
+          "leverage",
+          "pbr",
+          "earnings_surprise"
+        ],
+        "seed": 20261105,
+        "matched_pairs_sha256": "d43b9e7fbd555a7d0ca4197ea384af2f574e1c8da328f2d61e107cf30853117b",
+        "settings_sha256": "4fb28a174111513940fea58e6fda16b07b373c8845258e6392b78e8aad51628a"
+      },
+      "results_viewed": {
+        "7": "2026-11-09T16:04:02"
+      },
+      "changed_after_view": [
+        {
+          "at": "2026-11-09T16:00:24",
+          "what": "設定の変更: event_windows",
+          "from_run": "run_20261109_154444"
+        }
+      ]
     }
   },
   "last_viewed": {
-    "run_id": "run_20261109_135558",
+    "run_id": "run_20261109_160024",
     "stage": 7,
-    "at": "2026-11-09T14:00:42"
+    "at": "2026-11-09T16:25:58"
   }
 }

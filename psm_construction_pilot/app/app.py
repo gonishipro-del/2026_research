@@ -18,7 +18,7 @@ import config  # noqa: E402,F401  （psm_dataset を import できるように�
 from core import jobs, runs, stages  # noqa: E402
 from ui import common  # noqa: E402
 
-st.set_page_config(page_title="建設業PSM 試運転", page_icon="🧪", layout="wide")
+st.set_page_config(page_title="PSM 試運転", page_icon="🧪", layout="wide")
 
 run_id = runs.current_run()
 jobs.reap_dead_jobs(run_id)
@@ -34,6 +34,7 @@ PAGES = Path(__file__).parent / "pages"
 navigation = st.navigation({
     "全体": [
         st.Page(PAGES / "home.py", title="概要", icon="🏠", default=True),
+        st.Page(PAGES / "datasets.py", title="データセット（収集）", icon="🗂️"),
         st.Page(PAGES / "inputs.py", title="入力ファイルの更新", icon="📥"),
     ],
     "段階": [

@@ -1,0 +1,19 @@
+2026-11-09T14:49:58 対象 1425社 / 取得済みのため飛ばす 0社 / 今回取得 1425社
+2026-11-09T15:29:44 [失敗]
+Traceback (most recent call last):
+  File "C:\Users\bokut\projects\2026_research\psm_construction_pilot\core\collector.py", line 134, in run
+    progress.update(count, len(todo), f"{company['code']} {company['name']}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bokut\projects\2026_research\psm_construction_pilot\core\progress.py", line 67, in update
+    state.write_json_atomic(self.progress_path, {
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+        "done": done, "total": total, "message": message, "updated_at": state.now(),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    })
+    ^^
+  File "C:\Users\bokut\projects\2026_research\psm_construction_pilot\core\state.py", line 58, in write_json_atomic
+    os.replace(temp, path)
+    ~~~~~~~~~~^^^^^^^^^^^^
+PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\data\\datasets\\20261109_144954_20261109\\progress.json.tmp2568' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\data\\datasets\\20261109_144954_20261109\\progress.json'
+
+失敗 PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\data\\datasets\\20261109_144954_20261109\\progress.json.tmp2568' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\data\\datasets\\20261109_144954_20261109\\progress.json'

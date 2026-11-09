@@ -27,6 +27,8 @@ def sandbox(tmp_path, monkeypatch):
         "CONFIG_HISTORY_CSV": state_dir / "config_history.csv",
         "INPUTS_JSON": state_dir / "inputs.json",
         "INPUT_HISTORY_CSV": state_dir / "input_history.csv",
+        "DATASETS_JSON": state_dir / "datasets.json",
+        "DATASETS_DIR": tmp_path / "datasets",
         "TEXT_CACHE_DIR": tmp_path / "cache" / "pdf_text",
         "PAGE_IMAGE_CACHE_DIR": tmp_path / "cache" / "page_images",
         "PRICE_CACHE_DIR": tmp_path / "cache" / "prices",

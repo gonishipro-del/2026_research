@@ -79,6 +79,12 @@ names = common.read_csv(runs.stage_dir(run_id, stages.INGEST) / "targets.csv").s
 match_pairs = pd.read_csv(runs.stage_dir(run_id, stages.MATCHING) / "matches" / f"{summary['config']}.csv", dtype=str)
 controls = match_pairs.groupby("treated")["control"].apply(lambda codes: "、".join(codes.map(names)))
 pairs["企業"] = pairs["treated"].map(names) + " ↔ " + pairs["treated"].map(controls)
+industry_of = common.read_csv(runs.stage_dir(run_id, stages.INGEST) / "targets.csv").set_index("code")["industry33"]
+pair_industries = sorted(pairs["treated"].map(industry_of).dropna().unique())
+if len(pair_industries) > 1:
+    picked_industry = st.selectbox("業種で絞る", ["すべて"] + pair_industries, key="att_industry")
+    if picked_industry != "すべて":
+        pairs = pairs[pairs["treated"].map(industry_of) == picked_industry]
 pairs["向き"] = pairs["diff"].map(lambda v: "処置のほうが高い" if v > 0 else "対照のほうが高い")
 st.caption("1本の棒が1組。左が言及あり（処置）、右が言及なし（対照）の会社。棒が右 = 処置の会社のほうが株価反応が良かった。")
 chart = alt.Chart(pairs).mark_bar(size=12, cornerRadiusEnd=4).encode(

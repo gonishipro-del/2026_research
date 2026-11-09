@@ -1,0 +1,19 @@
+{
+  "companies": 1404,
+  "in_analysis": 1160,
+  "excluded": 244,
+  "treated": 467,
+  "control": 693,
+  "manual_cells": 0,
+  "unresolved_review_cells": 0,
+  "exclusion_reasons": {
+    "手動で除外: 実験": 174,
+    "欠損: earnings_surprise": 25,
+    "欠損: pbr, earnings_surprise": 13,
+    "欠損: ai_flag, log_total_assets, roa_ordinary, leverage, pbr, earnings_surprise": 12,
+    "手動で除外: 実験；欠損: earnings_surprise": 10,
+    "欠損: log_total_assets, roa_ordinary, leverage, pbr, earnings_surprise": 6,
+    "欠損: roa_ordinary, earnings_surprise": 3,
+    "手動で除外: 実験；欠損: roa_ordinary, leverage, earnings_surprise": 1
+  }
+}

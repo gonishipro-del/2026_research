@@ -55,7 +55,24 @@ def write_json_atomic(path: Path, data: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix(path.suffix + f".tmp{os.getpid()}")
     temp.write_text(json.dumps(data, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
-    os.replace(temp, path)
+    replace_with_retry(temp, path)
+
+
+_REPLACE_RETRIES = 40
+_REPLACE_WAIT_SEC = 0.05
+
+
+def replace_with_retry(source: Path, target: Path) -> None:
+    """os.replace。Windows では、画面側が target を読んでいる瞬間に置き換えると PermissionError になるため、
+    少し待って何度か試す（約2秒まで）。"""
+    for attempt in range(_REPLACE_RETRIES):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == _REPLACE_RETRIES - 1:
+                raise
+            time.sleep(_REPLACE_WAIT_SEC)
 
 
 def read_json(path: Path, default: object) -> object:

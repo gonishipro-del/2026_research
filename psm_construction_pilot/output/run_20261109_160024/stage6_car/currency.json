@@ -1,0 +1,14 @@
+{
+  "stock_currency": "usd",
+  "source": "yfinance（Yahoo Finance の JPY=X 日次終値）",
+  "ticker": "JPY=X",
+  "fetched_at": "2026-11-09T13:55:45",
+  "start": "2024-01-01",
+  "covered_until": "2026-11-08",
+  "first_date": "2023-12-22",
+  "last_date": "2026-11-06",
+  "rows": 746,
+  "unit": "1ドルあたりの円（終値）",
+  "alignment": "Yahoo の日付ラベルが1つ後のレートを、東京の株価のその日のレートとして使う",
+  "method": "株価の日次リターンをドル建てに換算: 1+R_USD = (1+R_JPY)×(S_前日÷S_当日)"
+}

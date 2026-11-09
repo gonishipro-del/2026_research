@@ -56,9 +56,17 @@ st.subheader("言及あり・なしの内訳")
 st.altair_chart(ai_charts.group_bar(flags), width="stretch")
 
 st.subheader("企業ごとのヒット件数")
-st.altair_chart(ai_charts.hit_bars(hits, flags, settings["treatment_threshold"]), width="stretch")
+industry_of = ingest.load_targets(run_id).set_index("code")["industry33"]
+columns = st.columns([2, 1])
+industry = columns[0].selectbox("業種", ["すべて"] + sorted(industry_of[industry_of.index.isin(hits["code"])].unique()),
+                                key="hit_industry")
+top = columns[1].number_input("件数の多い順に何社まで表示", 5, 2000, 40, step=5, key="hit_top")
+shown = hits if industry == "すべて" else hits[hits["code"].map(industry_of) == industry]
+keep = shown.groupby("code").size().sort_values(ascending=False).head(int(top)).index
+st.altair_chart(ai_charts.hit_bars(shown[shown["code"].isin(keep)], flags[flags["code"].isin(keep)],
+                                   settings["treatment_threshold"]), width="stretch")
 treated_n = int((flags["group"] == ai_count.TREATED).sum())
-st.caption(f"ヒットがあった会社をヒット件数の多い順に並べている。点線を越えた{treated_n}社が言及あり。"
+st.caption(f"ヒットがあった{hits['code'].nunique()}社のうち、選んだ業種で件数の多い{len(keep)}社を表示。点線を越えた{treated_n}社が言及あり。"
            f"ヒットが0件の{int((flags['hits_raw'].astype(int) == 0).sum())}社（言及なし）は表示していない。")
 with st.expander("表で見る"):
     keyword_columns = [column for column in flags.columns if column.startswith("kw_")]

@@ -14,7 +14,15 @@ from ui import charts
 def render(cells: pd.DataFrame, files: pd.Series, key: str) -> None:
     """cells は企業×変数の状態（code, name, variable, value, status, reason_code, detail）。
     files は証券コード → 決算短信PDFのファイル名。key は画面部品の重複を避ける接頭辞。"""
-    sort_by = st.radio("行の並び", ["証券コード順", "欠損・要確認の多い順"], horizontal=True, key=f"{key}_sort")
+    columns = st.columns([2, 2])
+    sort_by = columns[0].radio("行の並び", ["証券コード順", "欠損・要確認の多い順"], horizontal=True, key=f"{key}_sort")
+    issue_codes = set(cells.loc[cells["status"] != OK, "code"])
+    show_all = columns[1].toggle(f"全社を表示（既定は取得済み以外がある{len(issue_codes)}社だけ）", key=f"{key}_all")
+    if not show_all:
+        cells = cells[cells["code"].isin(issue_codes)]
+        if cells.empty:
+            st.caption("すべての会社で、すべての値を取得済みです")
+            return
     problem = cells.assign(bad=cells["status"].isin([MISSING, REVIEW]).astype(int))
     per_company = problem.groupby(["code", "name"])["bad"].sum().reset_index()
     per_company["label"] = per_company["code"] + " " + per_company["name"]

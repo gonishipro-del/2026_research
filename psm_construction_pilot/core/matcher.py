@@ -1,6 +1,7 @@
 """段階4: 傾向スコアの推定とマッチング（1対1・最近傍・キャリパー）。
 
 距離はロジットの線形予測子。キャリパーは線形予測子の標準偏差 × caliper_sd。
+exact_match_industry なら、同じ33業種の会社どうしでだけペアを組む（業種内の完全一致）。
 復元あり・なしの両方を、キャリパーの感度分析とあわせて計算する。処理順と同点の扱いは seed で固定する。
 段階5で凍結した設定が主分析になる。
 
@@ -26,10 +27,12 @@ from core import balance, propensity, runs, stage_runner, stages
 from core.progress import Progress
 
 
-def match(lp: pd.Series, treated: pd.Series, *, replacement: bool, caliper: float, seed: int) -> tuple[pd.DataFrame, list[str]]:
+def match(lp: pd.Series, treated: pd.Series, *, replacement: bool, caliper: float, seed: int,
+          groups: pd.Series | None = None) -> tuple[pd.DataFrame, list[str]]:
     """最近傍マッチング。(ペアの表, 脱落した処置群の証券コード) を返す。
 
     処置群を乱数で並べ替えて順に対照を選ぶ（復元なしの場合は貪欲法）。同点は並べ替え後の先頭を採る。
+    groups（例: 33業種区分）を渡すと、同じグループの対照だけを相手の候補にする（完全一致）。
     """
     rng = np.random.default_rng(seed)
     treated_codes = list(lp.index[treated.astype(bool)])
@@ -40,7 +43,8 @@ def match(lp: pd.Series, treated: pd.Series, *, replacement: bool, caliper: floa
     used: set[str] = set()
     pairs, dropped = [], []
     for code in treated_codes:
-        available = [c for c in control_codes if replacement or c not in used]
+        available = [c for c in control_codes if (replacement or c not in used)
+                     and (groups is None or groups[c] == groups[code])]
         if not available:
             dropped.append(code)
             continue
@@ -70,6 +74,9 @@ def run(run_id: str, progress: Progress) -> stage_runner.StageResult:
     for note in model["warnings"]:
         progress.log(f"[警告] {note}")
 
+    groups = frame["industry33"] if settings["exact_match_industry"] else None
+    if groups is not None:
+        progress.log(f"33業種内で完全一致（{groups.nunique()}業種）。業種は傾向スコアの説明変数に入れない")
     out = runs.stage_dir(run_id, stages.MATCHING)
     (out / "matches").mkdir(exist_ok=True)
     (out / "dropped").mkdir(exist_ok=True)
@@ -86,7 +93,7 @@ def run(run_id: str, progress: Progress) -> stage_runner.StageResult:
     for replacement, caliper_sd in propensity.matching_grid(settings):
         name = propensity.config_name(replacement, caliper_sd)
         pairs, dropped = match(lp, frame["ai_flag"], replacement=replacement, caliper=caliper_sd * sd,
-                               seed=settings["seed"])
+                               seed=settings["seed"], groups=groups)
         pairs.to_csv(out / "matches" / f"{name}.csv", index=False, encoding="utf-8-sig")
         pd.DataFrame({"treated": dropped}).to_csv(out / "dropped" / f"{name}.csv", index=False, encoding="utf-8-sig")
         smd = balance.max_abs_smd(frame, pairs, covariates)

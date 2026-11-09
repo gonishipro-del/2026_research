@@ -6,21 +6,23 @@ import json
 import streamlit as st
 
 import config
-from core import inputs, runs, stages
+from core import datasets, ingest, runs, stages
 from ui import common, stage_panel
 
 NUMBER = stages.INGEST
 run_id = runs.current_run()
 entry = stage_panel.header(run_id, NUMBER)
 settings = runs.run_config(run_id)
-st.markdown(f"上場銘柄一覧から **{settings['market']} × {'・'.join(settings['target_industries'])}** "
-            "の企業を抽出し、通期の決算短信PDFを対応づける。同一企業に複数あれば最新の通期を採用する。")
+industries = "・".join(settings["target_industries"]) or "全業種"
+excluded = "・".join(settings["excluded_industries"]) or "なし"
+st.markdown(f"データセット **{settings['dataset']}** の上場銘柄一覧から **{settings['market']} × {industries}**"
+            f"（除外: {excluded}）の企業を抽出し、通期の決算短信PDFを対応づける。同一企業に複数あれば最新の通期を採用する。")
 stage_panel.run_controls(run_id, NUMBER)
 
 out = runs.stage_dir(run_id, NUMBER)
 stage_panel.file_list("入力ファイル", [
-    (inputs.current_file("master"), "上場銘柄一覧"),
-    (config.resolve_pdf_dir(settings), "決算短信PDFの既存フォルダ（参照のみ）"),
+    (ingest.master_file(settings), "上場銘柄一覧（データセットの写し、なければ入力フォルダの最新版）"),
+    (datasets.pdf_dir(settings["dataset"]), "データセットの本決算短信PDF（参照のみ）"),
     (config.MANUAL_PDF_DIR, "手動アップロードしたPDF（段階3で追加）"),
 ])
 

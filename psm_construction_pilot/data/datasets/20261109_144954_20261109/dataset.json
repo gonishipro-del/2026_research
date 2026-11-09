@@ -1,0 +1,24 @@
+{
+  "id": "20261109_144954_20261109",
+  "label": "20261109",
+  "path": "C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\data\\datasets\\20261109_144954_20261109",
+  "created_at": "2026-11-09T14:49:54",
+  "status": "失敗",
+  "legacy": false,
+  "has_forecast": true,
+  "scope": {
+    "market": "プライム（内国株式）",
+    "excluded_industries": [
+      "銀行業",
+      "保険業",
+      "証券、商品先物取引業",
+      "その他金融業"
+    ],
+    "limit": null
+  },
+  "master_file": "data_j.xlsx",
+  "pid": null,
+  "message": "PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\\\Users\\\\bokut\\\\projects\\\\2026_research\\\\psm_construction_pilot\\\\data\\\\datasets\\\\20261109_144954_20261109\\\\progress.json.tmp2568' -> 'C:\\\\Users\\\\bokut\\\\projects\\\\2026_research\\\\psm_construction_pilot\\\\data\\\\datasets\\\\20261109_144954_20261109\\\\progress.json'",
+  "updated_at": "2026-11-09T15:29:44",
+  "started_at": "2026-11-09T14:49:57"
+}

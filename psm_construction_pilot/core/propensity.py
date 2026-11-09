@@ -1,6 +1,6 @@
 """段階4（前半）: 傾向スコア（ロジット）の推定。
 
-ai_flag ~ 共変量（config の covariates）。対象は1業種なので業種は説明変数に入れない。
+ai_flag ~ 共変量（config の covariates）。業種は説明変数に入れない（マッチングで33業種内の完全一致にする）。
 距離には線形予測子（ロジットの傾向スコア）を使う。
 """
 from __future__ import annotations

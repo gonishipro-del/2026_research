@@ -17,7 +17,7 @@ from ui import review_panel  # noqa: E402
     ("roa_ordinary", 0.068),
     ("leverage", 0.6407),
     ("pbr", 1.02),
-    ("profit_change", -0.0123),
+    ("earnings_surprise", -0.0123),
 ])
 def test_display_and_input_units_round_trip(variable, raw):
     _, _, to_display, from_display = review_panel.UNITS[variable]
@@ -29,3 +29,18 @@ def test_inputs_are_in_readable_units():
     assert review_panel.UNITS["leverage"][3](64.07) == pytest.approx(0.6407)  # %
     assert review_panel._display("leverage", "0.6407") == "64.070 %"
     assert review_panel._display("log_total_assets", str(math.log(8_412_419e6))) == "8,412,419 百万円"
+
+
+def test_review_summary_counts_pending_items():
+    import pandas as pd
+    cells = pd.DataFrame([
+        {"code": "1001", "name": "A", "variable": "pbr", "status": "要確認"},
+        {"code": "1001", "name": "A", "variable": "leverage", "status": "手動"},
+        {"code": "1001", "name": "A", "variable": "roa_ordinary", "status": "取得"},
+        {"code": "1002", "name": "B", "variable": "pbr", "status": "手動"},
+    ])
+    from core import covariates
+    cells["status"] = cells["status"].map({"要確認": covariates.REVIEW, "手動": covariates.MANUAL, "取得": covariates.OK})
+    summary = review_panel.review_summary(["1001", "1002"], cells).set_index("code")
+    assert summary.loc["1001", "pending"] == 1 and summary.loc["1002", "pending"] == 0
+    assert summary.loc["1001", "items"] == "負債比率、PBR" or summary.loc["1001", "items"] == "PBR、負債比率"

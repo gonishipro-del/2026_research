@@ -1,0 +1,32 @@
+{
+  "coef": {
+    "const": 1.9767486056489503,
+    "log_total_assets": -0.08308881215175055,
+    "roa_ordinary": -3.284278475655535,
+    "leverage": -1.4372173671441841,
+    "pbr": 0.3465943183985757,
+    "earnings_surprise": 1.0808760932317387
+  },
+  "se": {
+    "const": 1.2079076827265038,
+    "log_total_assets": 0.046243782742067356,
+    "roa_ordinary": 1.5973774642392184,
+    "leverage": 0.42786408213067667,
+    "pbr": 0.059515202918087866,
+    "earnings_surprise": 2.3511018537716293
+  },
+  "pseudo_r2": 0.0432974593178963,
+  "converged": true,
+  "n": 1160,
+  "n_treated": 467,
+  "n_control": 693,
+  "warnings": [],
+  "caliper_sd_of_lp": 0.5378043714974748,
+  "covariates": [
+    "log_total_assets",
+    "roa_ordinary",
+    "leverage",
+    "pbr",
+    "earnings_surprise"
+  ]
+}

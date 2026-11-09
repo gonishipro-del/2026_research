@@ -31,6 +31,9 @@ INPUT_DIRS = {
     "master": INPUTS_DIR / "master",  # JPX 上場銘柄一覧 data_j.xlsx
 }
 INPUT_ARCHIVE_DIRNAME = "archive"  # 差し替えで退避した旧版の置き場（各入力フォルダの下）
+DATASETS_DIR = DATA_DIR / "datasets"  # 収集したデータセット（1回の収集ごとに1フォルダ。上書きしない）
+LEGACY_DATASET_ID = "20260904_legacy"
+LEGACY_DATASET_DIR = REPO_DIR / "20260904dataset"  # アプリ以前に collect.py で集めた本決算短信（読み取り専用）
 MANUAL_DIR = DATA_DIR / "manual"
 MANUAL_PDF_DIR = MANUAL_DIR / "pdfs"  # アプリから手動アップロードした決算短信PDF
 
@@ -50,6 +53,7 @@ RUN_HISTORY_CSV = STATE_DIR / "run_history.csv"
 CONFIG_HISTORY_CSV = STATE_DIR / "config_history.csv"
 INPUTS_JSON = STATE_DIR / "inputs.json"  # 現在の入力ファイルと検証結果
 INPUT_HISTORY_CSV = STATE_DIR / "input_history.csv"
+DATASETS_JSON = STATE_DIR / "datasets.json"  # データセットの登録簿
 
 TRIAL_NOTICE = "試運転の結果。最終結果ではない"
 CURRENCY_NOTICE = (
@@ -61,8 +65,9 @@ CURRENCY_NOTICE = (
 DEFAULTS: dict = {
     # 対象
     "market": "プライム（内国株式）",
-    "target_industries": ["建設業"],
-    "pdf_dir": "../20260904dataset/pdf",  # 決算短信PDFの既存フォルダ（コピーしない）
+    "dataset": LEGACY_DATASET_ID,  # 使うデータセット（data/datasets/ の ID。アプリの「データセット」ページで作る）
+    "target_industries": [],  # 対象の33業種区分。空なら全業種（excluded_industries を除く）
+    "excluded_industries": ["銀行業", "保険業", "証券、商品先物取引業", "その他金融業"],
     # 処置
     "ai_keywords": ["AI", "人工知能", "機械学習", "深層学習", "ディープラーニング",
                     "生成AI", "LLM", "大規模言語モデル"],
@@ -70,12 +75,13 @@ DEFAULTS: dict = {
     "min_group_size": 10,  # 処置群・対照群がこれ未満なら警告して確認を求める
     "hit_context_chars": 30,  # ヒット前後に保存する文字数
     # マッチング
-    "covariates": ["log_total_assets", "roa_ordinary", "leverage", "pbr", "profit_change"],
+    "covariates": ["log_total_assets", "roa_ordinary", "leverage", "pbr", "earnings_surprise"],
+    "exact_match_industry": True,  # 同じ33業種の会社どうしでペアを組む（業種は傾向スコアに入れない）
     "caliper_sd": 0.2,  # キャリパー = ロジット傾向スコアの標準偏差 × この値
     "replacement_main": False,  # 主分析を復元ありにするか（凍結時に確定する）
     # イベントスタディ
-    # 1日・3日・30日・60日・90日（営業日、発表日=0）。窓ごとに CAR と ATT を出す
-    "event_windows": [[0, 0], [-1, 1], [0, 29], [0, 59], [0, 89]],
+    # 1日・3日・5日・10日・30日（営業日、発表日=0）。窓ごとに CAR と ATT を出す
+    "event_windows": [[0, 0], [-1, 1], [-2, 2], [0, 9], [0, 29]],
     "event_window_main": [-1, 1],
     "placebo_window": [-15, -11],
     "estimation_window": [-250, -21],
@@ -95,12 +101,14 @@ DEFAULTS: dict = {
 SETTING_FIRST_STAGE = {
     "market": stages.INGEST,
     "target_industries": stages.INGEST,
-    "pdf_dir": stages.INGEST,
+    "excluded_industries": stages.INGEST,
+    "dataset": stages.INGEST,
     "ai_keywords": stages.AI_COUNT,
     "treatment_threshold": stages.AI_COUNT,
     "min_group_size": stages.AI_COUNT,
     "hit_context_chars": stages.AI_COUNT,
     "covariates": stages.MATCHING,
+    "exact_match_industry": stages.MATCHING,
     "caliper_sd": stages.MATCHING,
     "replacement_main": stages.FREEZE,
     "seed": stages.MATCHING,
@@ -126,7 +134,7 @@ def with_defaults(values: dict | None) -> dict:
 
 
 # 後から追加した項目で、それ以前の設定ファイルに無い場合に使う値（追加前の動きを変えないため）
-LEGACY_VALUES = {"stock_currency": "jpy"}
+LEGACY_VALUES = {"stock_currency": "jpy", "dataset": LEGACY_DATASET_ID, "excluded_industries": []}
 
 
 def load_config(path: Path | None = None) -> dict:
@@ -143,9 +151,3 @@ def save_config(values: dict, path: Path | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     body = yaml.safe_dump(values, allow_unicode=True, sort_keys=False)
     path.write_text(_YAML_HEADER + body, encoding="utf-8")
-
-
-def resolve_pdf_dir(values: dict) -> Path:
-    """pdf_dir は config.yaml からの相対パスでも絶対パスでもよい。"""
-    raw = Path(values["pdf_dir"])
-    return raw if raw.is_absolute() else (PILOT_DIR / raw).resolve()

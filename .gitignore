@@ -7,3 +7,10 @@ __pycache__/
 20260904dataset/
 full_run.log
 cache/
+
+# アプリで収集した決算短信・予想の資料のPDFは容量が大きいためバージョン管理しない
+# （一覧 master.xlsx・企業ごとの結果 metadata.jsonl・dataset.json・ログは残す）
+psm_construction_pilot/data/datasets/*/pdf/
+psm_construction_pilot/data/datasets/*/forecast/
+# 書き込みの途中で残った一時ファイル
+*.json.tmp*

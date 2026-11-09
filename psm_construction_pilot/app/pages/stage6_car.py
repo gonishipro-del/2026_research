@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 import config
+from core import car as car_module
 from core import runs, stages
 from core.car import window_label, window_title
 from ui import stage_panel
@@ -46,6 +47,28 @@ main = window_label(tuple(settings["event_window_main"]))
 columns[1].metric(f"主分析 {window_title(tuple(settings['event_window_main']))} のCARを計算", int(car[f"car_{main}"].notna().sum()))
 columns[2].metric("推定の観測数（中央値）", int(car["n_est"].median()))
 columns[3].metric("決定係数（中央値）", f"{car['r2'].median():.3f}")
+
+missing_main = car_module.uncomputed(run_id, main)
+if len(missing_main):
+    pairs_path = runs.stage_dir(run_id, stages.MATCHING) / "matched_pairs.csv"
+    pairs = pd.read_csv(pairs_path, dtype=str) if pairs_path.exists() else pd.DataFrame(columns=["treated", "control"])
+    in_pairs = pairs[pairs["treated"].isin(missing_main["code"]) | pairs["control"].isin(missing_main["code"])]
+    box = st.warning if entry["status"] == stages.REVIEW else st.info
+    box(f"主分析 {window_title(tuple(settings['event_window_main']))} の CAR を計算できない企業が {len(missing_main)}社あります。"
+        f"このうち主分析のペアに入っているのは {len(in_pairs)}組（全{len(pairs)}組）で、段階7ではそのペアを外して ATT を計算します。"
+        "上場して間もない企業は、推定期間の株価がそろわないため計算できません。")
+    st.dataframe(missing_main.rename(columns={"code": "証券コード", "name": "企業名", "reason": "理由"}),
+                 hide_index=True, width="stretch")
+    if entry["status"] == stages.REVIEW:
+        with st.form("confirm_uncomputed"):
+            note = st.text_input("確認のメモ（必須）", placeholder="例: 新規上場3社は推定期間が足りないため、そのペアを外して進める")
+            if st.form_submit_button("確認して段階7へ進めるようにする", type="primary"):
+                try:
+                    car_module.confirm_uncomputed(run_id, note)
+                except ValueError as error:
+                    st.error(str(error))
+                else:
+                    st.rerun()
 
 st.subheader("窓ごとに CAR を計算できた企業")
 st.dataframe(pd.DataFrame([{"窓": title.removeprefix("CAR "), "計算できた企業": int(car[f"car_{label}"].notna().sum()),

@@ -44,11 +44,32 @@ PRIOR = {"prior_period": "2025年3月期", "prior_ordinary_profit": 160_663e6, "
 PRICE = PriceResult(price=4555.0, price_date="2026-05-13")
 
 
-def test_all_ok_and_profit_change_formula():
-    cells = covariates.derive_cells(_record(), EXTRACTION, PRIOR, PRICE)
+FORECAST = {"forecast": {"values": {"ordinary_profit": 226_000e6, "operating_profit": 228_000e6},
+                         "date": "2026-02-12", "kind": "四半期短信"}, "notes": [], "actual_operating": 240_780e6}
+
+
+def test_all_ok_and_earnings_surprise_formula():
+    cells = covariates.derive_cells(_record(), EXTRACTION, PRIOR, PRICE, FORECAST)
     assert {cell["status"] for cell in cells.values()} == {OK}
     assert cells["log_total_assets"]["value"] == pytest.approx(math.log(3_624_341e6))
-    assert cells["profit_change"]["value"] == pytest.approx((240_420 - 160_663) / 3_454_592)
+    # (実績の経常利益 − 発表直前の予想) ÷ 前期末総資産
+    assert cells["earnings_surprise"]["value"] == pytest.approx((240_420 - 226_000) / 3_454_592)
+
+
+def test_missing_forecast_falls_back_to_prior_actual():
+    cells = covariates.derive_cells(_record(), EXTRACTION, PRIOR, PRICE,
+                                    {"forecast": None, "notes": ["予想の表が見つからない"]})
+    assert cells["earnings_surprise"]["status"] == SUBSTITUTE
+    assert cells["earnings_surprise"]["value"] == pytest.approx((240_420 - 160_663) / 3_454_592)
+    assert "前期の実績で代替" in cells["earnings_surprise"]["detail"]
+
+
+def test_operating_profit_used_when_forecast_lacks_the_item():
+    expected = {"forecast": {"values": {"operating_profit": 200_000e6}, "date": "2026-02-06", "kind": "業績予想の修正"},
+                "notes": [], "actual_operating": 240_780e6}
+    cells = covariates.derive_cells(_record(), EXTRACTION, PRIOR, PRICE, expected)
+    assert cells["earnings_surprise"]["status"] == SUBSTITUTE
+    assert cells["earnings_surprise"]["value"] == pytest.approx((240_780 - 200_000) / 3_454_592)
 
 
 def test_image_pdf_makes_all_missing():
@@ -62,17 +83,19 @@ def test_leverage_unit_error_is_flagged_not_dropped():
     assert cells["leverage"]["value"] == pytest.approx(6e-7)  # 値は捨てない
 
 
-def test_pretax_substitute_uses_prior_pretax():
+def test_pretax_basis_uses_pretax_forecast():
     record = _record(備考="【経常利益なし→税引前利益で代替】roa_ordinary は税引前利益ベース", accounting_standard="IFRS")
-    cells = covariates.derive_cells(record, EXTRACTION, PRIOR, PRICE)
+    expected = {"forecast": {"values": {"pretax_profit": 200_000e6}, "date": "2026-02-06", "kind": "四半期短信"},
+                "notes": [], "actual_operating": None}
+    cells = covariates.derive_cells(record, EXTRACTION, PRIOR, PRICE, expected)
     assert cells["roa_ordinary"]["status"] == SUBSTITUTE
-    assert cells["profit_change"]["status"] == SUBSTITUTE
-    assert cells["profit_change"]["value"] == pytest.approx((240_420e6 - 150_000e6) / 3_454_592e6)
+    assert cells["earnings_surprise"]["status"] == SUBSTITUTE
+    assert cells["earnings_surprise"]["value"] == pytest.approx((240_420e6 - 200_000e6) / 3_454_592e6)
 
 
 def test_missing_prior_and_price_failure_reasons():
     cells = covariates.derive_cells(_record(), EXTRACTION, {"prior_period": ""}, PriceResult(failed=True, note="x"))
-    assert cells["profit_change"]["reason_code"] == covariates.R_NO_PRIOR
+    assert cells["earnings_surprise"]["reason_code"] == covariates.R_NO_PRIOR
     assert cells["pbr"]["reason_code"] == covariates.R_PRICE
 
 
@@ -83,6 +106,6 @@ def test_bps_mismatch_is_review():
 
 def test_total_assets_crosscheck_propagates_to_dependent_variables():
     record = _record(備考="【サマリーと本表の不一致】総資産: サマリー645,230,000,000 / 本表2,023,100,000,000（サマリー採用）")
-    cells = covariates.derive_cells(record, EXTRACTION, PRIOR, PRICE)
+    cells = covariates.derive_cells(record, EXTRACTION, PRIOR, PRICE, FORECAST)
     assert all(cells[v]["status"] == REVIEW for v in covariates.VARIABLES)
     assert cells["pbr"]["value"] == pytest.approx(1.5)  # 値は残す

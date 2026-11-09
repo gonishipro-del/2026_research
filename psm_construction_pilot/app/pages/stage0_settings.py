@@ -6,7 +6,7 @@ import json
 import streamlit as st
 
 import config
-from core import inputs, master, runs, settings
+from core import covariates, datasets, inputs, master, runs, settings
 from ui import common, stage_panel
 
 run_id = runs.current_run()
@@ -22,7 +22,11 @@ try:
     industry_options = master.industries(master.load(inputs.current_file("master")), current["market"])
 except (FileNotFoundError, ValueError) as error:
     st.error(f"上場銘柄一覧を読めないため業種の選択肢を出せません: {error}")
-    industry_options = current["target_industries"]
+    industry_options = sorted(set(current["target_industries"]) | set(current["excluded_industries"]))
+industry_options = sorted(set(industry_options) | set(current["target_industries"]) | set(current["excluded_industries"]))
+dataset_ids = datasets.collected_ids()
+if current["dataset"] not in dataset_ids:
+    dataset_ids.append(current["dataset"])
 
 
 def parse_windows(text: str) -> list[list[int]]:
@@ -36,12 +40,13 @@ def window_text(windows: list[list[int]]) -> str:
 
 with st.form("settings"):
     st.subheader("対象")
+    dataset = st.selectbox("データセット（収集済みのもの）", dataset_ids, index=dataset_ids.index(current["dataset"]),
+                           help="新しく集めるときは「データセット」ページで。")
     target_industries = st.multiselect(
-        "対象業種（33業種区分）", industry_options, default=current["target_industries"],
-        help="既定は建設業のみ。複数選ぶと、マッチングは業種内の完全一致になる。")
-    pdf_dir = st.text_input("決算短信PDFのフォルダ", current["pdf_dir"],
-                            help="既存フォルダを参照する（コピーしない）。相対パスは psm_construction_pilot/ から。")
-    st.caption(f"→ {config.resolve_pdf_dir({'pdf_dir': pdf_dir})}")
+        "対象業種（33業種区分。空なら全業種）", industry_options, default=current["target_industries"])
+    excluded_industries = st.multiselect(
+        "除外する業種", industry_options, default=current["excluded_industries"],
+        help="既定は金融業（銀行・保険・証券・その他金融）。負債比率や ROA の意味が他の業種と違うため")
 
     st.subheader("処置（AI言及）")
     keywords = st.text_area("AI_KEYWORDS（1行に1語）", "\n".join(current["ai_keywords"]), height=180)
@@ -59,6 +64,10 @@ with st.form("settings"):
     replacement = columns[1].radio("主分析の復元", ["なし", "あり"], index=int(current["replacement_main"]),
                                    horizontal=True, help="復元あり・なしの両方を計算して並べる。主分析は段階5の凍結時に確定する。")
     seed = columns[2].number_input("seed", 0, 2**31 - 1, int(current["seed"]))
+    chosen_covariates = st.multiselect("共変量（傾向スコアの説明変数）", covariates.VARIABLES,
+                                       default=[c for c in current["covariates"] if c in covariates.VARIABLES])
+    exact_match = st.checkbox("33業種の中で完全一致させる（同じ業種の会社どうしでペアを組む。業種は説明変数に入れない）",
+                              bool(current["exact_match_industry"]))
 
     st.subheader("イベントスタディ")
     columns = st.columns(3)
@@ -88,7 +97,8 @@ if submitted:
         values = {
             **current,
             "target_industries": target_industries,
-            "pdf_dir": pdf_dir.strip(),
+            "dataset": dataset,
+            "excluded_industries": excluded_industries,
             "ai_keywords": [word.strip() for word in keywords.splitlines() if word.strip()],
             "treatment_threshold": int(threshold),
             "min_group_size": int(min_group),
@@ -96,6 +106,8 @@ if submitted:
             "caliper_sd": float(caliper),
             "replacement_main": replacement == "あり",
             "seed": int(seed),
+            "covariates": chosen_covariates,
+            "exact_match_industry": bool(exact_match),
             "event_windows": parse_windows(windows_text),
             "event_window_main": parse_windows(main_window)[0],
             "placebo_window": parse_windows(placebo)[0],

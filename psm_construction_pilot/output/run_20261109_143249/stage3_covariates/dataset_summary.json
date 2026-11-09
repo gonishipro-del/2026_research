@@ -1,0 +1,17 @@
+{
+  "companies": 1404,
+  "in_analysis": 1334,
+  "excluded": 70,
+  "treated": 550,
+  "control": 784,
+  "manual_cells": 0,
+  "unresolved_review_cells": 612,
+  "exclusion_reasons": {
+    "欠損: earnings_surprise": 35,
+    "欠損: pbr, earnings_surprise": 13,
+    "欠損: ai_flag, log_total_assets, roa_ordinary, leverage, pbr, earnings_surprise": 12,
+    "欠損: log_total_assets, roa_ordinary, leverage, pbr, earnings_surprise": 6,
+    "欠損: roa_ordinary, earnings_surprise": 3,
+    "欠損: roa_ordinary, leverage, earnings_surprise": 1
+  }
+}

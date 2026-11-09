@@ -94,3 +94,12 @@ def test_rosenbaum_bounds_widen_with_gamma():
     uppers = [r["p_upper"] for r in rows]
     lowers = [r["p_lower"] for r in rows]
     assert uppers == sorted(uppers) and lowers == sorted(lowers, reverse=True)
+
+
+def test_exact_match_pairs_only_within_the_same_group():
+    lp = pd.Series([0.0, 0.01, 0.02, 0.5], index=["t1", "c_same", "c_other", "t2"])
+    treated = pd.Series([True, False, False, True], index=lp.index)
+    groups = pd.Series(["建設業", "建設業", "化学", "化学"], index=lp.index)
+    pairs, dropped = matcher.match(lp, treated, replacement=False, caliper=1.0, seed=0, groups=groups)
+    assert dict(zip(pairs["treated"], pairs["control"])) == {"t1": "c_same", "t2": "c_other"}
+    assert not dropped

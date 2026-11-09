@@ -17,6 +17,9 @@ ROLE_COLOR = {TREATED_MATCHED: BLUE, TREATED_DROPPED: BLUE, CONTROL_MATCHED: ORA
 ROLE_SHAPE = {TREATED_MATCHED: "circle", TREATED_DROPPED: "cross", CONTROL_MATCHED: "square", CONTROL_UNUSED: "square"}
 ROLE_SYMBOL = {TREATED_MATCHED: "●", TREATED_DROPPED: "✖", CONTROL_MATCHED: "■", CONTROL_UNUSED: "□"}
 ALL_PAIRS = "（すべて表示）"
+LINE_LIMIT = 60  # これより多いペアは、線でつなぐ図だと読めないので分布の図を既定にする
+SORTS = {"距離が大きい順（組み合わせが粗いペアから）": ("distance", False),
+         "傾向スコアの高い順": ("ps_treated", False), "言及ありの会社の名前順": ("treated_name", True)}
 
 
 def summary_metrics(nodes: pd.DataFrame, pairs: pd.DataFrame) -> None:
@@ -83,6 +86,54 @@ def dumbbell(nodes: pd.DataFrame, pairs: pd.DataFrame, caliper_abs: float, selec
                 fontSize=13, fontWeight="bold", color=INK, dy=dy).encode(
                 x="lp:Q", y=alt.Y("y:Q", scale=y_scale), text="name:N"))
     return alt.layer(*layers).properties(height=260)
+
+
+def mirror_histogram(nodes: pd.DataFrame, bins: int = 40) -> alt.Chart:
+    """傾向スコア（ロジット）の分布。上向きが言及あり（処置）、下向きが言及なし（対照）。
+
+    棒は「ペアになった／脱落・使われなかった」で積み上げる。ペアになった部分の上下の形が似ているほど、
+    傾向スコアが揃った2群を作れている。
+    """
+    edges = np.histogram_bin_edges(nodes["lp"].dropna(), bins=bins)
+    rows = []
+    for role in ROLES:
+        values = nodes.loc[nodes["role"] == role, "lp"].dropna()
+        counts, _ = np.histogram(values, bins=edges)
+        sign = 1 if role in (TREATED_MATCHED, TREATED_DROPPED) else -1
+        for left, right, count in zip(edges[:-1], edges[1:], counts):
+            if count:
+                rows.append({"x0": left, "x1": right, "count": sign * int(count), "n": int(count), "role": role,
+                             "order": ROLES.index(role)})
+    frame = pd.DataFrame(rows)
+    color = alt.Color("role:N", scale=alt.Scale(domain=ROLES, range=[
+        BLUE, "#a9c9f0", ORANGE, GREY]), legend=alt.Legend(title="区分", orient="bottom", columns=2, labelLimit=300))
+    bars = alt.Chart(frame).mark_bar(stroke="white", strokeWidth=0.5).encode(
+        x=alt.X("x0:Q", title="傾向スコア（ロジット）→ 右ほど「言及しやすい会社」"), x2="x1:Q",
+        y=alt.Y("sum(count):Q", stack=True, title="社数（上: 言及あり ／ 下: 言及なし）",
+                axis=alt.Axis(labelExpr="abs(datum.value)")),
+        color=color, order=alt.Order("order:Q"),
+        tooltip=[alt.Tooltip("role:N", title="区分"), alt.Tooltip("n:Q", title="社数"),
+                 alt.Tooltip("x0:Q", title="ロジット（から）", format=".2f"),
+                 alt.Tooltip("x1:Q", title="ロジット（まで）", format=".2f")])
+    zero = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color=INK).encode(y="y:Q")
+    return alt.layer(bars, zero).properties(height=320)
+
+
+def industry_bars(pairs: pd.DataFrame, nodes: pd.DataFrame, industry_of: pd.Series) -> alt.Chart:
+    """業種ごとの、ペア数と脱落した処置の数（業種内でだけ組むので、業種ごとの内訳が分かる）。"""
+    paired = pairs["treated"].map(industry_of).value_counts()
+    dropped = nodes[nodes["role"] == TREATED_DROPPED].index.map(industry_of).value_counts()
+    frame = pd.DataFrame({"ペア": paired, "脱落した処置": dropped}).fillna(0).astype(int)
+    frame = frame.sort_values(["ペア", "脱落した処置"], ascending=False).rename_axis("業種").reset_index()
+    order = frame["業種"].tolist()
+    long = frame.melt("業種", var_name="区分", value_name="数")
+    long = long[long["数"] > 0]
+    return alt.Chart(long).mark_bar().encode(
+        y=alt.Y("業種:N", sort=order, title=None, axis=alt.Axis(labelLimit=260)),
+        x=alt.X("数:Q", title="数（ペアは組、脱落は社）", stack=True),
+        color=alt.Color("区分:N", scale=alt.Scale(domain=["ペア", "脱落した処置"], range=[BLUE, "#a9c9f0"]),
+                        legend=alt.Legend(orient="bottom", title=None)),
+        tooltip=["業種:N", "区分:N", "数:Q"]).properties(height=max(22 * len(order), 120))
 
 
 def roster(nodes: pd.DataFrame) -> pd.DataFrame:

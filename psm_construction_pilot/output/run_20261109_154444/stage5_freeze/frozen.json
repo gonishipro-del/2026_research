@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-09T15:45:50",
+  "config": "norep_c0.2",
+  "replacement": false,
+  "caliper_sd": 0.2,
+  "covariates": [
+    "log_total_assets",
+    "roa_ordinary",
+    "leverage",
+    "pbr",
+    "earnings_surprise"
+  ],
+  "seed": 20261105,
+  "matched_pairs_sha256": "d43b9e7fbd555a7d0ca4197ea384af2f574e1c8da328f2d61e107cf30853117b",
+  "settings_sha256": "4fb28a174111513940fea58e6fda16b07b373c8845258e6392b78e8aad51628a"
+}

@@ -5,15 +5,19 @@ import streamlit as st
 
 import config
 from core import inputs, runs, state
-from ui import common
+from ui import chain_panel, common
 
 run_id = runs.current_run()
-st.title("建設業 PSM 試運転")
+st.title("PSM 試運転")
 st.markdown(
     "決算短信での AI 言及を処置とした傾向スコアマッチングとイベントスタディを、段階ごとに"
     "ボタンで進める。前の段階が完了するまで次の段階は実行できない。上流を再実行・編集すると、"
     "下流は「要再実行」になる。"
 )
+
+st.markdown(f"使っているデータセット: **{runs.run_config(run_id)['dataset']}**（「データセット（収集）」ページで収集・切り替え）")
+st.subheader("続けて実行")
+chain_panel.render(run_id, key="home")
 
 st.subheader("段階の状態")
 st.dataframe(common.status_table(run_id), hide_index=True, width="stretch")

@@ -101,3 +101,90 @@
 2026-11-09T13:58:18,run_20261109_135558,段階の終了,7,"完了 主分析m1_p1: ATT +0.0219 95%CI [-0.0212, +0.0647] n=21",0
 2026-11-09T13:58:18,run_20261109_135558,段階の実行開始,8,,0
 2026-11-09T13:58:25,run_20261109_135558,段階の終了,8,完了 窓・マッチ・市場モデル等 12件の代替推定を並べた。市場モデル（日経平均（^N225））の ATT +0.0285。試運転の結果,0
+2026-11-09T14:32:49,run_20261109_143249,run作成,,"親=run_20261109_135558 結果閲覧後の変更: 設定の変更: target_industries, excluded_industries, covariates",0
+2026-11-09T14:32:49,run_20261109_143249,結果閲覧後の変更,1,"設定の変更: target_industries, excluded_industries, covariates",1
+2026-11-09T14:32:49,run_20261109_143249,要再実行に変更,"1,2,3,4,5,6,7,8","上流の変更: 設定の変更: target_industries, excluded_industries, covariates",0
+2026-11-09T14:32:49,run_20261109_143249,設定の保存,0,"target_industries, excluded_industries, covariates",0
+2026-11-09T14:43:57,run_20261109_143249,続けて実行の開始,1-8,,0
+2026-11-09T14:43:57,run_20261109_143249,段階の実行開始,1,,0
+2026-11-09T14:45:58,run_20261109_143249,段階の失敗,1,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage1_ingest\\progress.json.tmp22108' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage1_ingest\\progress.json',0
+2026-11-09T14:45:58,run_20261109_143249,続けて実行の終了,,段階1が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage1_ingest\\progress.json.tmp22108' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage1_ingest\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:04:09,run_20261109_143249,続けて実行の開始,1-8,,0
+2026-11-09T15:04:09,run_20261109_143249,段階の実行開始,1,,0
+2026-11-09T15:07:12,run_20261109_143249,段階の終了,1,完了 対象1432社 / 採用1404社 / PDFなし21社 / 種類株式7社 / 通期なし0社,0
+2026-11-09T15:07:12,run_20261109_143249,段階の実行開始,2,,0
+2026-11-09T15:07:13,run_20261109_143249,段階の失敗,2,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage2_ai_count\\progress.json.tmp27276' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage2_ai_count\\progress.json',0
+2026-11-09T15:07:13,run_20261109_143249,続けて実行の終了,,段階2が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage2_ai_count\\progress.json.tmp27276' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage2_ai_count\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:07:38,run_20261109_143249,続けて実行の開始,2-8,,0
+2026-11-09T15:07:38,run_20261109_143249,段階の実行開始,2,,0
+2026-11-09T15:08:24,run_20261109_143249,段階の終了,2,完了 処置群573社 / 対照群819社 / 判定不能12社,0
+2026-11-09T15:08:24,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:08:58,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp12648' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:08:58,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp12648' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:09:17,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:09:17,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:12:01,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp8752' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:12:01,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp8752' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:12:19,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:12:19,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:15:27,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp2388' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:15:27,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp2388' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:15:35,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:15:35,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:16:34,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp23828' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:16:34,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp23828' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:16:48,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:16:48,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:20:51,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp24904' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:20:51,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp24904' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:21:15,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:21:15,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:23:55,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp8372' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:23:56,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp8372' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:24:06,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:24:06,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:27:55,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp28992' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:27:55,run_20261109_143249,続けて実行の終了,,段階3が「失敗」で止まりました: PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp28992' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json'。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:28:11,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:31:24,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp18344' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:31:35,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:32:00,run_20261109_143249,段階の失敗,3,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json.tmp26120' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_143249\\stage3_covariates\\progress.json',0
+2026-11-09T15:32:06,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:33:02,run_20261109_143249,段階の終了,3,要確認 1404社 / 予想あり0社 / 欠損160セル / 要確認647セル / 抽出失敗18社 / 株価失敗0社／分析対象1334社（処置550・対照784）／除外70社／手動0セル／未確認の「要確認」612セル。値を確認・修正するか、このまま使うことを確認してください,0
+2026-11-09T15:34:37,run_20261109_143249,続けて実行の開始,3-8,,0
+2026-11-09T15:34:37,run_20261109_143249,段階の実行開始,3,,0
+2026-11-09T15:34:47,run_20261109_143249,段階の終了,3,要確認 1404社 / 予想あり0社 / 欠損160セル / 要確認647セル / 抽出失敗18社 / 株価失敗0社／分析対象1334社（処置550・対照784）／除外70社／手動0セル／未確認の「要確認」612セル。値を確認・修正するか、このまま使うことを確認してください,0
+2026-11-09T15:34:47,run_20261109_143249,続けて実行の終了,,段階3が「要確認」で止まりました: 1404社 / 予想あり0社 / 欠損160セル / 要確認647セル / 抽出失敗18社 / 株価失敗0社／分析対象1334社（処置550・対照784）／除外70社／手動0セル／未確認の「要確認」612セル。値を確認・修正するか、このまま使うことを確認してください。確認・修正してから「続きから実行」してください,0
+2026-11-09T15:44:44,run_20261109_154444,run作成,,親=run_20261109_143249 結果閲覧後の変更: 分析からまとめて除外 185社,0
+2026-11-09T15:44:44,run_20261109_154444,結果閲覧後の変更,4,分析からまとめて除外 185社,1
+2026-11-09T15:45:02,run_20261109_154444,段階の実行開始,4,,0
+2026-11-09T15:45:16,run_20261109_154444,段階の終了,4,完了 主分析 norep_c0.2: ペア318 / 脱落149社 / SMD最大0.059,0
+2026-11-09T15:45:40,run_20261109_154444,段階の実行開始,5,,0
+2026-11-09T15:45:44,run_20261109_154444,段階の終了,5,完了 SMD最大（マッチ後）0.059（log_total_assets）。脱落した処置群149社,0
+2026-11-09T15:45:50,run_20261109_154444,マッチングの凍結,5,主分析=norep_c0.2 復元=False,0
+2026-11-09T15:46:07,run_20261109_154444,段階の実行開始,6,,0
+2026-11-09T15:47:09,run_20261109_154444,段階の終了,6,要確認 対象756社 / 主分析窓のCAR計算 753社 / 警告836件。計算できない企業があります（warnings.csv）,0
+2026-11-09T15:49:26,run_20261109_154444,段階の実行開始,6,,0
+2026-11-09T15:50:08,run_20261109_154444,段階の失敗,6,PermissionError: [WinError 5] アクセスが拒否されました。: 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_154444\\stage6_car\\progress.json.tmp23184' -> 'C:\\Users\\bokut\\projects\\2026_research\\psm_construction_pilot\\output\\run_20261109_154444\\stage6_car\\progress.json',0
+2026-11-09T15:50:53,run_20261109_154444,段階の実行開始,6,,0
+2026-11-09T15:52:19,run_20261109_154444,段階の終了,6,要確認 対象756社 / 主分析窓のCAR計算 753社 / 警告836件。計算できない企業があります（warnings.csv）,0
+2026-11-09T15:52:56,run_20261109_154444,CARを計算できない企業の確認,6,実験,0
+2026-11-09T15:54:06,run_20261109_154444,段階の実行開始,7,,0
+2026-11-09T15:54:07,run_20261109_154444,段階の終了,7,"完了 主分析m1_p1: ATT +0.0068 95%CI [-0.0078, +0.0218] n=315",0
+2026-11-09T15:54:30,run_20261109_154444,段階の実行開始,8,,0
+2026-11-09T15:55:22,run_20261109_154444,段階の終了,8,完了 窓・マッチ・市場モデル等 12件の代替推定を並べた。市場モデル（日経平均（^N225））の ATT +0.0076。試運転の結果,0
+2026-11-09T16:00:24,run_20261109_160024,run作成,,親=run_20261109_154444 結果閲覧後の変更: 設定の変更: event_windows,0
+2026-11-09T16:00:24,run_20261109_160024,結果閲覧後の変更,6,設定の変更: event_windows,1
+2026-11-09T16:00:24,run_20261109_160024,要再実行に変更,"6,7,8",上流の変更: 設定の変更: event_windows,0
+2026-11-09T16:00:24,run_20261109_160024,設定の保存,0,event_windows,0
+2026-11-09T16:00:32,run_20261109_160024,続けて実行の開始,6-8,,0
+2026-11-09T16:00:32,run_20261109_160024,段階の実行開始,6,,0
+2026-11-09T16:02:41,run_20261109_160024,段階の終了,6,要確認 対象756社 / 主分析窓のCAR計算 753社 / 警告762件。計算できない企業があります（warnings.csv）,0
+2026-11-09T16:02:41,run_20261109_160024,続けて実行の終了,,段階6が「要確認」で止まりました: 対象756社 / 主分析窓のCAR計算 753社 / 警告762件。計算できない企業があります（warnings.csv）。確認・修正してから「続きから実行」してください,0
+2026-11-09T16:02:58,run_20261109_160024,CARを計算できない企業の確認,6,窓の変更前の run_20261109_154444 での確認（同じ3社: 368A・429A・546A、新規上場で推定期間不足）を引き継ぐ,0
+2026-11-09T16:02:59,run_20261109_160024,続けて実行の開始,7-8,,0
+2026-11-09T16:02:59,run_20261109_160024,段階の実行開始,7,,0
+2026-11-09T16:03:00,run_20261109_160024,段階の終了,7,"完了 主分析m1_p1: ATT +0.0068 95%CI [-0.0078, +0.0218] n=315",0
+2026-11-09T16:03:00,run_20261109_160024,段階の実行開始,8,,0
+2026-11-09T16:04:10,run_20261109_160024,段階の終了,8,完了 窓・マッチ・市場モデル等 12件の代替推定を並べた。市場モデル（日経平均（^N225））の ATT +0.0076。試運転の結果,0
+2026-11-09T16:04:10,run_20261109_160024,続けて実行の終了,,段階7〜8を実行しました,0

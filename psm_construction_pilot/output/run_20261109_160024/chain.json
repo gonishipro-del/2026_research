@@ -1,0 +1,14 @@
+{
+  "status": "完了",
+  "start": 7,
+  "end": 8,
+  "pid": 2840,
+  "message": "段階7〜8を実行しました",
+  "started_at": "2026-11-09T16:02:59",
+  "updated_at": "2026-11-09T16:04:10",
+  "done": [
+    7,
+    8
+  ],
+  "current": null
+}

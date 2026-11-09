@@ -4,7 +4,7 @@
 分析用データセットを作る。手動入力は元データを上書きせず、生成時に優先して反映する
 （source_type=manual）。欠損が残る企業は完全ケースとして除外する。
 
-手動入力の操作（値の入力、ai_flag の上書き、除外、企業の追加、取り消し）もここに置く。
+手動入力の操作（値の入力、ai_flag の上書き、除外・まとめて除外、企業の追加、取り消し）もここに置く。
 操作をすると分析用データセットをその場で作り直し、段階4（マッチング）以降を「要再実行」にする
 （企業の追加は段階1から）。
 
@@ -78,6 +78,8 @@ def build_dataset(run_id: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     dataset = included.set_index("code").join(wide).join(sources.add_suffix("_source")).join(
         statuses.add_suffix("_status"))
 
+    # 段階3の出力にある共変量（過去の run は、今と違う共変量で作られていることがある）
+    variables = [v for v in cells["variable"].unique() if v != AI_FLAG]
     excluded = overrides.active("exclude").set_index("code")
     reasons, review_counts = [], []
     for code, row in dataset.iterrows():
@@ -85,16 +87,16 @@ def build_dataset(run_id: str) -> tuple[pd.DataFrame, pd.DataFrame]:
         if code in excluded.index and excluded.loc[code, "new_value"] == "1":
             reason.append(f"手動で除外: {excluded.loc[code, 'reason']}")
         # 段階2・3に行がない（状態が NaN）場合も欠損とみなす
-        missing = [variable for variable in [AI_FLAG, *VARIABLES]
+        missing = [variable for variable in [AI_FLAG, *variables]
                    if pd.isna(row.get(f"{variable}_status")) or row.get(f"{variable}_status") == MISSING]
         if missing:
             reason.append("欠損: " + ", ".join(missing))
         reasons.append("；".join(reason))
-        review_counts.append(sum(row.get(f"{variable}_status") == REVIEW for variable in [AI_FLAG, *VARIABLES]))
+        review_counts.append(sum(row.get(f"{variable}_status") == REVIEW for variable in [AI_FLAG, *variables]))
     dataset["exclusion_reason"] = reasons
     dataset["in_analysis"] = (dataset["exclusion_reason"] == "").astype(int)
     dataset["review_cells"] = review_counts
-    for variable in VARIABLES:
+    for variable in variables:
         dataset[variable] = pd.to_numeric(dataset[variable], errors="coerce")
     dataset[AI_FLAG] = pd.to_numeric(dataset[AI_FLAG], errors="coerce").astype("Int64")
     return dataset.reset_index(), cells
@@ -195,6 +197,49 @@ def exclude(code: str, reason: str) -> str:
     _require(理由=reason)
     return _record("exclude", code, f"分析から除外 {code}", target="exclude", new_value="1",
                    source="段階3", reason=reason.strip())
+
+
+def exclude_many(codes: list[str], reason: str) -> str:
+    """複数の会社をまとめて分析から除外する（要確認がある会社の一括除外など）。
+
+    会社ごとに除外の行を手動入力ログに追記するが、run の切り替え・分析用データセットの作り直し・
+    「要再実行」は1回だけ行う。すでに除外中の会社は飛ばす。
+    """
+    _require(理由=reason)
+    excluded = set(excluded_codes())
+    targets = [code for code in dict.fromkeys(codes) if code not in excluded]
+    if not targets:
+        raise ValueError("除外する会社がありません（すでに除外中か、選ばれていません）")
+    what = f"分析からまとめて除外 {len(targets)}社"
+    run_id, _ = changes.begin_upstream_change(what, FIRST_STAGE_BY_KIND["exclude"])
+    for code in targets:
+        overrides.append(run_id, "exclude", code, target="exclude", new_value="1", source="段階3（一括）",
+                         reason=reason.strip())
+    refresh(run_id)
+    changes.finish_upstream_change(run_id, what, FIRST_STAGE_BY_KIND["exclude"])
+    return run_id
+
+
+def include_many(codes: list[str], reason: str) -> str:
+    """除外中の会社をまとめて分析に含め直す（除外の手動入力を取り消す）。"""
+    _require(理由=reason)
+    live = overrides.active("exclude")
+    live = live[(live["new_value"] == "1") & live["code"].isin(codes)]
+    if live.empty:
+        raise ValueError("含め直す会社がありません（除外中の会社が選ばれていません）")
+    what = f"除外のまとめての取り消し {len(live)}社"
+    run_id, _ = changes.begin_upstream_change(what, FIRST_STAGE_BY_KIND["exclude"])
+    for override_id in live["override_id"]:
+        overrides.revoke(run_id, override_id, reason.strip())
+    refresh(run_id)
+    changes.finish_upstream_change(run_id, what, FIRST_STAGE_BY_KIND["exclude"])
+    return run_id
+
+
+def excluded_codes() -> list[str]:
+    """手動で除外中の会社（証券コード）。"""
+    live = overrides.active("exclude")
+    return sorted(live.loc[live["new_value"] == "1", "code"].tolist())
 
 
 def add_company(code: str, name: str, announce_date: date, pdf_bytes: bytes, reason: str) -> str:

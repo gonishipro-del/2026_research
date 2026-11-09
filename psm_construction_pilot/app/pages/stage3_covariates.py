@@ -30,7 +30,7 @@ with st.expander("変数の定義"):
 | roa_ordinary | 経常利益 ÷ 総資産。経常利益がない会計基準は税引前利益で代替（代替値） |
 | leverage | 負債合計 ÷ 総資産。負債合計が直接取れなければ 総資産 − 純資産合計。1−純資産÷総資産 と照合 |
 | pbr | 決算発表日の前営業日の終値 ÷ BPS。BPSは開示値を優先し自前計算で照合（乖離5%超は要確認） |
-| profit_change | (当期経常利益 − 前期経常利益) ÷ 前期末総資産。前期値は同じ短信のサマリー頁の前期行 |
+| earnings_surprise | (当期経常利益 − 発表直前の会社予想の経常利益) ÷ 前期末総資産。予想は直前の四半期短信・業績予想の修正から読む。予想がなければ前期の実績で代替（代替値）。IFRS は税引前利益で揃える |
 """)
 stage_panel.run_controls(run_id, NUMBER)
 
@@ -54,8 +54,8 @@ columns[3].metric("除外", int((dataset["in_analysis"] == 0).sum()))
 columns[4].metric("未確認の「要確認」セル", int(analysed["review_cells"].sum()))
 columns[5].metric("抽出失敗／株価失敗", f"{collected['failed_extraction']}／{collected['failed_prices']}")
 if entry["status"] == stages.REVIEW:
-    st.warning("「要確認」の値が残っているため、段階4へ進めません。「要確認の処理」タブで、会社ごとに含めるか・"
-               "含めないかを選び、値を確認・修正してください（「分析対象の確定」タブで、まとめてそのまま使うこともできる）。")
+    st.warning("「要確認」の値が残っているため、段階4へ進めません。「要確認の処理」タブで、まとめて除外するか、"
+               "会社ごとに含めるか・含めないかを選び、値を確認・修正してください（「分析対象の確定」タブで、まとめてそのまま使うこともできる）。")
 
 
 def flash(*messages: str) -> None:
@@ -136,7 +136,7 @@ with tab_detail:
 
         st.markdown("**値を入力する**（左のページを見ながら）")
         with st.form(f"manual_value_{code}"):
-            variable = st.selectbox("変数", VARIABLES)
+            variable = st.selectbox("変数", [v for v in VARIABLES if v in set(company_cells["variable"])] or VARIABLES)
             raw = st.text_input("値", help="比率は小数で（例: 0.523）。log_total_assets は下の欄から計算できる")
             assets_million = st.text_input("（log_total_assets のみ）総資産を百万円で入れると ln(総資産×10^6) を値にする")
             source = st.text_input("出典（必須）", placeholder=f"例: 決算短信p.{page if pdf_path else ''} 連結BS")
@@ -252,7 +252,7 @@ with tab_fix:
 with tab_table:
     table = covariates.load_covariates(run_id)
     shown = ["code", "name", "announce_date", "accounting_standard", "statement_scope"]
-    for variable in VARIABLES:
+    for variable in [v for v in table.columns if f"{v}_status" in table.columns]:
         shown += [variable, f"{variable}_status"]
     st.dataframe(table[shown], hide_index=True, width="stretch")
     with st.expander("中間値（総資産・BPS・株価・前期値など）"):
