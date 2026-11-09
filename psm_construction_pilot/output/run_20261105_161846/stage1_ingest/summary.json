@@ -1,0 +1,11 @@
+{
+  "master_file": "data_j.xlsx",
+  "pdf_dir": "C:\\Users\\bokut\\projects\\2026_research\\20260904dataset\\pdf",
+  "target_companies": 71,
+  "included": 70,
+  "no_pdf": 0,
+  "preferred_share": 1,
+  "no_annual": 0,
+  "period_unknown": 0,
+  "excluded_pdfs": 0
+}

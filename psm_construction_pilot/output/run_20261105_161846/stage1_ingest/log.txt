@@ -1,0 +1,5 @@
+2026-11-05T16:24:08 段階1（対象企業の確定と決算資料の取り込み）を開始 run=run_20261105_161846
+2026-11-05T16:24:09 上場銘柄一覧: data_j.xlsx（4444行）→ プライム（内国株式） × ['建設業']: 71社
+2026-11-05T16:24:09 PDFフォルダがありません（手動アップロード）: C:\Users\bokut\projects\2026_research\psm_construction_pilot\data\manual\pdfs
+2026-11-05T16:24:09 PDFフォルダ: C:\Users\bokut\projects\2026_research\20260904dataset\pdf（1531件）
+2026-11-05T16:24:09 終了: 完了 対象71社 / 採用70社 / PDFなし0社 / 種類株式1社 / 通期なし0社

@@ -1,0 +1,43 @@
+{
+  "companies": 70,
+  "failed_extraction": 0,
+  "failed_prices": 0,
+  "cells_by_status": {
+    "取得済み": 327,
+    "要確認": 18,
+    "代替値": 5
+  },
+  "cells_by_reason": {
+    "サマリーと本表の不一致": 17,
+    "代替値": 5,
+    "BPS不一致": 1
+  },
+  "by_variable": {
+    "leverage": {
+      "代替値": 1,
+      "取得済み": 65,
+      "要確認": 4
+    },
+    "log_total_assets": {
+      "代替値": 1,
+      "取得済み": 66,
+      "要確認": 3
+    },
+    "pbr": {
+      "代替値": 1,
+      "取得済み": 65,
+      "要確認": 4
+    },
+    "profit_change": {
+      "代替値": 1,
+      "取得済み": 66,
+      "要確認": 3
+    },
+    "roa_ordinary": {
+      "代替値": 1,
+      "取得済み": 65,
+      "要確認": 4
+    }
+  },
+  "complete_companies": 70
+}

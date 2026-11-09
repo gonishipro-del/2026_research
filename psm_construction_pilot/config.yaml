@@ -1,0 +1,55 @@
+# 建設業 PSM 試運転アプリの設定。項目の意味は README.md の「設定の意味」を参照。
+market: プライム（内国株式）
+target_industries:
+- 建設業
+pdf_dir: ../20260904dataset/pdf
+ai_keywords:
+- AI
+treatment_threshold: 1
+min_group_size: 10
+hit_context_chars: 30
+covariates:
+- log_total_assets
+- roa_ordinary
+- leverage
+- pbr
+- profit_change
+caliper_sd: 0.2
+replacement_main: false
+event_windows:
+- - 0
+  - 0
+- - -1
+  - 1
+- - 0
+  - 29
+- - 0
+  - 59
+- - 0
+  - 89
+event_window_main:
+- -1
+- 1
+placebo_window:
+- -15
+- -11
+estimation_window:
+- -250
+- -21
+min_estimation_obs: 120
+include_alpha: true
+stock_currency: usd
+caliper_grid:
+- 0.1
+- 0.2
+- 0.3
+bootstrap_reps: 2000
+rosenbaum_gammas:
+- 1.0
+- 1.25
+- 1.5
+- 1.75
+- 2.0
+- 2.5
+- 3.0
+seed: 20261105

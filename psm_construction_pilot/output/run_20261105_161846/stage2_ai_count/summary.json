@@ -1,0 +1,12 @@
+{
+  "処置群": 24,
+  "対照群": 46,
+  "判定不能": 0,
+  "hits_raw": 57,
+  "hits_false": 0,
+  "hits_unlabeled": 57,
+  "threshold": 1,
+  "small_groups": [],
+  "message": "処置群24社 / 対照群46社 / 判定不能0社",
+  "status": "完了"
+}

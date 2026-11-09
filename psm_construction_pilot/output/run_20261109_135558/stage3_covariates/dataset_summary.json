@@ -1,0 +1,10 @@
+{
+  "companies": 70,
+  "in_analysis": 70,
+  "excluded": 0,
+  "treated": 24,
+  "control": 46,
+  "manual_cells": 0,
+  "unresolved_review_cells": 18,
+  "exclusion_reasons": {}
+}

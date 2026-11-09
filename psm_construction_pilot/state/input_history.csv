@@ -1,0 +1,3 @@
+﻿timestamp,kind,event,file,modified_at,sha256,ok,detail
+2026-11-05T16:18:46,factors,登録,Japan_5_Factors_Daily.csv,2026-11-05T16:09:37,640c9f557e5b46bd64d8a1b833fc4a880fcde6c6523e6be74484b506b11cb169,1,
+2026-11-05T16:18:47,master,登録,data_j.xlsx,2026-11-05T16:10:45,97a28fdb7f605d5c84d20e5ce9354cf4f366c23f494a15f4578986f48e2a0023,1,

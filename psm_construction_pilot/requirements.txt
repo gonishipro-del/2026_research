@@ -1,0 +1,7 @@
+# リポジトリ直下の requirements.txt（pandas, pypdfium2, yfinance など）に加えて必要なもの
+-r ../requirements.txt
+streamlit==1.66.1
+statsmodels==0.15.0
+scipy==1.18.1
+PyYAML==6.0.3
+pytest==9.2.0
